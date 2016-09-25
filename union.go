@@ -1,14 +1,27 @@
 package union
 
-// QQ QQ
+import (
+	"github.com/tiantour/union/qq"
+	"github.com/tiantour/union/wechat"
+	"github.com/tiantour/union/weibo"
+)
+
+// union union
 var (
-	QQ     = &qq{}
-	Wechat = &wechat{}
-	Weibo  = &weibo{}
+	Wechat = &tWechat{}
+	Weibo  = &tWeibo{}
+	QQ     = &tQQ{}
 )
 
 type (
-	qq     struct{}
-	wechat struct{}
-	weibo  struct{}
+	tWechat struct {
+		User  wechat.User
+		Token wechat.Token
+	}
+	tWeibo struct {
+		User weibo.User
+	}
+	tQQ struct {
+		User qq.User
+	}
 )
