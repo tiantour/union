@@ -37,8 +37,8 @@ func (t *Token) Refresh(refreshToken string) (Token, error) {
 }
 
 // Verify token
-func (t *Token) Verify(accessToken, openID string) (Message, error) {
-	result := Message{}
+func (t *Token) Verify(accessToken, openID string) (Prompt, error) {
+	result := Prompt{}
 	url := fmt.Sprintf("https://api.weixin.qq.com/sns/auth?access_token=%s&openid=%s",
 		accessToken,
 		openID,
