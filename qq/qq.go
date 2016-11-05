@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/tiantour/conf"
 	"github.com/tiantour/requests"
 )
 
@@ -29,18 +28,22 @@ type (
 )
 
 // Info info
-func (u *User) Info(accessToken, openID string) (User, error) {
+func (u *User) Info(appID, accessToken, openID string) (User, error) {
 	result := User{}
 	url := fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%s?&oauth_consumer_key=%s&openid=%s",
 		accessToken,
-		conf.Options.QQ.AppID,
+		appID,
 		openID,
 	)
 	body, err := request(url)
-	if err == nil && json.Unmarshal(body, &result) == nil {
-		return result, nil
+	if err != nil {
+		return result, err
 	}
-	return result, err
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return result, err
+	}
+	return result, nil
 }
 
 // request

@@ -2,38 +2,49 @@ package wechat
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-
-	"github.com/tiantour/conf"
+	"strconv"
 )
 
 // Access token
-func (t *Token) Access(code string) (Token, error) {
+func (t *Token) Access(appID, appSecret, code string) (Token, error) {
 	result := Token{}
 	url := fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code",
-		conf.Options.Wechat.AppID,
-		conf.Options.Wechat.AppSecret,
+		appID,
+		appSecret,
 		code,
 	)
 	body, err := request(url)
-	if err == nil && json.Unmarshal(body, &result) == nil {
-		return result, nil
+	if err != nil {
+		return result, err
 	}
-	return result, err
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return result, err
+	}
+	if result.ErrCode != 0 {
+		return result, errors.New(strconv.Itoa(result.ErrCode) + result.ErrMsg)
+	}
+	return result, nil
 }
 
 // Refresh token
-func (t *Token) Refresh(refreshToken string) (Token, error) {
+func (t *Token) Refresh(appID, refreshToken string) (Token, error) {
 	result := Token{}
 	url := fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=%s&grant_type=refresh_token&refresh_token=%s",
-		conf.Options.Wechat.AppID,
+		appID,
 		refreshToken,
 	)
 	body, err := request(url)
-	if err == nil && json.Unmarshal(body, &result) == nil {
-		return result, nil
+	if err != nil {
+		return result, err
 	}
-	return result, err
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return result, err
+	}
+	return result, nil
 }
 
 // Verify token
@@ -44,8 +55,12 @@ func (t *Token) Verify(accessToken, openID string) (Prompt, error) {
 		openID,
 	)
 	body, err := request(url)
-	if err == nil && json.Unmarshal(body, &result) == nil {
-		return result, nil
+	if err != nil {
+		return result, err
 	}
-	return result, err
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return result, err
+	}
+	return result, nil
 }

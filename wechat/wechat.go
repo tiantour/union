@@ -10,6 +10,8 @@ type (
 		RefreshToken string `json:"refresh_token"` // 用户刷新access_token
 		OpenID       string `json:"openid"`        // 用户唯一标识
 		Scope        string `json:"scope"`         // 用户授权的作用域，使用逗号（,）分隔
+		ErrCode      int    `json:"errcode"`       // 错误代码
+		ErrMsg       string `json:"errmsg"`        // 错误消息
 	}
 	// User user
 	User struct {
@@ -30,8 +32,7 @@ type (
 		ErrMsg  string `json:"errmsg"`
 	}
 	// Message message
-	Message struct {
-	}
+	Message struct{}
 )
 
 // request

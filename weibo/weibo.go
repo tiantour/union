@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/tiantour/conf"
 	"github.com/tiantour/requests"
 )
 
@@ -49,18 +48,22 @@ type (
 )
 
 // Info info
-func (u *User) Info(accessToken, uID string) (User, error) {
+func (u *User) Info(appID, accessToken, uID string) (User, error) {
 	result := User{}
 	url := fmt.Sprintf("https://api.weibo.com/2/users/show.json?source=%s&access_token=%s&uid=%s",
-		conf.Options.Weibo.AppID,
+		appID,
 		accessToken,
 		uID,
 	)
 	body, err := request(url)
-	if err == nil && json.Unmarshal(body, &result) == nil {
-		return result, nil
+	if err != nil {
+		return result, err
 	}
-	return result, err
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return result, err
+	}
+	return result, nil
 }
 
 // request

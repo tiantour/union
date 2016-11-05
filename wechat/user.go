@@ -13,8 +13,12 @@ func (u *User) Info(accessToken, openID string) (User, error) {
 		openID,
 	)
 	body, err := request(url)
-	if err == nil && json.Unmarshal(body, &result) == nil {
-		return result, nil
+	if err != nil {
+		return result, err
 	}
-	return result, err
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return result, err
+	}
+	return result, nil
 }
