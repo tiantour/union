@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/tiantour/cache"
-	"github.com/tiantour/requests"
+	"github.com/tiantour/fetch"
 )
 
 // Token message
@@ -36,11 +36,10 @@ func (m *Message) Push(appID, appSecret string, data interface{}) ([]byte, error
 	if err != nil {
 		return nil, err
 	}
-	requestURL, requestData, requestHeader := requests.Options()
-	requestURL = fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s", accessToken)
-	requestData, err = json.Marshal(data)
+	requestURL := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s", accessToken)
+	requestData, err := json.Marshal(data)
 	if err != nil {
 		return nil, err
 	}
-	return requests.Post(requestURL, requestData, requestHeader)
+	return fetch.Cmd("post", requestURL, requestData)
 }

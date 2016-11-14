@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/tiantour/requests"
+	"github.com/tiantour/fetch"
 )
 
 type (
@@ -48,6 +48,5 @@ func (u *User) Info(appID, accessToken, openID string) (User, error) {
 
 // request
 func request(requestURL string) ([]byte, error) {
-	_, requestData, requestHeader := requests.Options()
-	return requests.Get(requestURL, requestData, requestHeader)
+	return fetch.Cmd("get", requestURL)
 }

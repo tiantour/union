@@ -1,6 +1,6 @@
 package wechat
 
-import "github.com/tiantour/requests"
+import "github.com/tiantour/fetch"
 
 type (
 	// Token token
@@ -37,6 +37,5 @@ type (
 
 // request
 func request(requestURL string) ([]byte, error) {
-	_, requestData, requestHeader := requests.Options()
-	return requests.Get(requestURL, requestData, requestHeader)
+	return fetch.Cmd("get", requestURL)
 }
