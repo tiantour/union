@@ -13,12 +13,12 @@ import (
 
 // Share share
 type Share struct {
-	AppID       string `json:"appid" url:"appid"`
+	AppID       string `json:"appid" url:"-"`
 	JSapiTicket string `json:"jsapi_ticket" url:"jsapi_ticket"`
 	Noncestr    string `json:"noncestr" url:"noncestr"`
 	Timestamp   string `json:"timestamp" url:"timestamp"`
 	URL         string `json:"url" url:"url"`
-	Signature   string `json:"signature" url:"signature"`
+	Signature   string `json:"signature" url:"-"`
 }
 
 // NewShare new share
