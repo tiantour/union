@@ -68,5 +68,8 @@ func (u *User) Info(appID, accessToken, uID string) (User, error) {
 
 // request
 func request(requestURL string) ([]byte, error) {
-	return fetch.Cmd("get", requestURL)
+	return fetch.Cmd(fetch.Request{
+		Method: "GET",
+		URL:    requestURL,
+	})
 }

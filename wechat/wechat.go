@@ -37,5 +37,8 @@ type (
 
 // request
 func request(requestURL string) ([]byte, error) {
-	return fetch.Cmd("get", requestURL)
+	return fetch.Cmd(fetch.Request{
+		Method: "GET",
+		URL:    requestURL,
+	})
 }

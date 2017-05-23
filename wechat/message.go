@@ -41,5 +41,9 @@ func (m *Message) Push(appID, appSecret string, data interface{}) ([]byte, error
 	if err != nil {
 		return nil, err
 	}
-	return fetch.Cmd("post", requestURL, requestData)
+	return fetch.Cmd(fetch.Request{
+		Method: "POST",
+		URL:    requestURL,
+		Body:   requestData,
+	})
 }
