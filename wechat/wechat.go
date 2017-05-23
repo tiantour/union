@@ -1,20 +1,35 @@
 package wechat
 
-import "github.com/tiantour/fetch"
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/tiantour/fetch"
+)
+
+var (
+	// AppID appid
+	AppID string
+
+	// AppSecret app secret
+	AppSecret string
+
+	// Code code
+	Code string
+
+	// AccessToken access token
+	AccessToken string
+
+	// RefreshToken refresh token
+	RefreshToken string
+
+	// OpenID openID
+	OpenID string
+)
 
 type (
-	// Token token
-	Token struct {
-		AccessToken  string `json:"access_token"`  // 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
-		ExpiresIn    int    `json:"expires_in"`    // access_token接口调用凭证超时时间，单位（秒）
-		RefreshToken string `json:"refresh_token"` // 用户刷新access_token
-		OpenID       string `json:"openid"`        // 用户唯一标识
-		Scope        string `json:"scope"`         // 用户授权的作用域，使用逗号（,）分隔
-		ErrCode      int    `json:"errcode"`       // 错误代码
-		ErrMsg       string `json:"errmsg"`        // 错误消息
-	}
-	// User user
-	User struct {
+	// Wechat wechat
+	Wechat struct {
 		OpenID     string   `json:"openid"`     // 用户的唯一标识
 		NickName   string   `json:"nickname"`   // 用户昵称
 		Sex        int      `json:"sex"`        // 用户的性别，值为1时是男性，值为2时是女性，值为0时是未知
@@ -26,16 +41,27 @@ type (
 		UnionID    string   `json:"unionid"`    // 只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。详见：获取用户个人信息（UnionID机制）
 		Language   string   `json:"language"`   // 语言
 	}
-	// Prompt prompt
-	Prompt struct {
-		ErrCode int    `json:"errcode"`
-		ErrMsg  string `json:"errmsg"`
-	}
-	// Message message
-	Message struct{}
 )
 
-// request
-func request(requestURL string) ([]byte, error) {
-	return fetch.Cmd("get", requestURL)
+// NewWechat new wechat
+func NewWechat() *Wechat {
+	return &Wechat{}
+}
+
+// User user
+func (w Wechat) User() (Wechat, error) {
+	result := Wechat{}
+	url := fmt.Sprintf("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s",
+		AccessToken,
+		OpenID,
+	)
+	body, err := fetch.Cmd(fetch.Request{
+		Method: "GET",
+		URL:    url,
+	})
+	if err != nil {
+		return result, err
+	}
+	err = json.Unmarshal(body, &result)
+	return result, err
 }

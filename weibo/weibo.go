@@ -7,9 +7,20 @@ import (
 	"github.com/tiantour/fetch"
 )
 
+var (
+	// AppID appid
+	AppID string
+
+	// AccessToken access token
+	AccessToken string
+
+	// UID uid
+	UID string
+)
+
 type (
-	// User weibo
-	User struct {
+	// Weibo weibo
+	Weibo struct {
 		ID               int64       `json:"id"`                 // 用户UID
 		IDStr            string      `json:"idstr"`              // 字符串型的用户UID
 		ScreenName       string      `json:"screen_name"`        //用户昵称
@@ -47,26 +58,26 @@ type (
 	}
 )
 
-// Info info
-func (u *User) Info(appID, accessToken, uID string) (User, error) {
-	result := User{}
+// NewWeibo new weibo
+func NewWeibo() *Weibo {
+	return &Weibo{}
+}
+
+// User user
+func (w Weibo) User() (Weibo, error) {
+	result := Weibo{}
 	url := fmt.Sprintf("https://api.weibo.com/2/users/show.json?source=%s&access_token=%s&uid=%s",
-		appID,
-		accessToken,
-		uID,
+		AppID,
+		AccessToken,
+		UID,
 	)
-	body, err := request(url)
+	body, err := fetch.Cmd(fetch.Request{
+		Method: "GET",
+		URL:    url,
+	})
 	if err != nil {
 		return result, err
 	}
 	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return result, err
-	}
-	return result, nil
-}
-
-// request
-func request(requestURL string) ([]byte, error) {
-	return fetch.Cmd("get", requestURL)
+	return result, err
 }
