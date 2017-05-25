@@ -26,14 +26,14 @@ func NewShare() *Share {
 	return &Share{}
 }
 
-// Data data
-func (s Share) Data(page string) (Share, error) {
+// Do do
+func (s Share) Do(page string) (Share, error) {
 	result := Share{
 		Noncestr:  imago.NewRandom().String(16),
 		Timestamp: strconv.FormatInt(time.Now().Unix(), 10),
 		URL:       page,
 	}
-	ticket, err := NewTicket().Data()
+	ticket, err := NewTicket().Do()
 	if err != nil {
 		return result, err
 	}

@@ -20,8 +20,8 @@ func NewTicket() *Ticket {
 	return &Ticket{}
 }
 
-// Data data
-func (t Ticket) Data() (Ticket, error) {
+// Do do
+func (t Ticket) Do() (Ticket, error) {
 	result := Ticket{}
 	token, err := NewToken().Cache()
 	if err != nil {
