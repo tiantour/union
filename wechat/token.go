@@ -26,12 +26,12 @@ func NewToken() *Token {
 }
 
 // Access token
-func (t Token) Access() (Token, error) {
+func (t Token) Access(code string) (Token, error) {
 	result := Token{}
 	url := fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code",
 		AppID,
 		AppSecret,
-		Code,
+		code,
 	)
 	body, err := fetch.Cmd(fetch.Request{
 		Method: "GET",
@@ -48,11 +48,11 @@ func (t Token) Access() (Token, error) {
 }
 
 // Refresh token
-func (t Token) Refresh() (Token, error) {
+func (t Token) Refresh(refreshToken string) (Token, error) {
 	result := Token{}
 	url := fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=%s&grant_type=refresh_token&refresh_token=%s",
 		AppID,
-		RefreshToken,
+		refreshToken,
 	)
 	body, err := fetch.Cmd(fetch.Request{
 		Method: "GET",
@@ -63,11 +63,11 @@ func (t Token) Refresh() (Token, error) {
 }
 
 // Verify token
-func (t Token) Verify() (Token, error) {
+func (t Token) Verify(accessToken, openID string) (Token, error) {
 	result := Token{}
 	url := fmt.Sprintf("https://api.weixin.qq.com/sns/auth?access_token=%s&openid=%s",
-		AccessToken,
-		OpenID,
+		accessToken,
+		openID,
 	)
 	body, err := fetch.Cmd(fetch.Request{
 		Method: "GET",

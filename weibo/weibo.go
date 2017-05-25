@@ -8,14 +8,8 @@ import (
 )
 
 var (
-	// AppID appid
+	// AppID appID
 	AppID string
-
-	// AccessToken access token
-	AccessToken string
-
-	// UID uid
-	UID string
 )
 
 type (
@@ -64,12 +58,12 @@ func NewWeibo() *Weibo {
 }
 
 // User user
-func (w Weibo) User() (Weibo, error) {
+func (w Weibo) User(accessToken, uID string) (Weibo, error) {
 	result := Weibo{}
 	url := fmt.Sprintf("https://api.weibo.com/2/users/show.json?source=%s&access_token=%s&uid=%s",
 		AppID,
-		AccessToken,
-		UID,
+		accessToken,
+		uID,
 	)
 	body, err := fetch.Cmd(fetch.Request{
 		Method: "GET",

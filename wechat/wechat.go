@@ -13,18 +13,6 @@ var (
 
 	// AppSecret app secret
 	AppSecret string
-
-	// Code code
-	Code string
-
-	// AccessToken access token
-	AccessToken string
-
-	// RefreshToken refresh token
-	RefreshToken string
-
-	// OpenID openID
-	OpenID string
 )
 
 type (
@@ -49,11 +37,11 @@ func NewWechat() *Wechat {
 }
 
 // User user
-func (w Wechat) User() (Wechat, error) {
+func (w Wechat) User(accessToken, openID string) (Wechat, error) {
 	result := Wechat{}
 	url := fmt.Sprintf("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s",
-		AccessToken,
-		OpenID,
+		accessToken,
+		openID,
 	)
 	body, err := fetch.Cmd(fetch.Request{
 		Method: "GET",

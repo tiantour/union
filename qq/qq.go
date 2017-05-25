@@ -10,20 +10,11 @@ import (
 var (
 	// AppID appID
 	AppID string
-
-	// AccessToken access token
-	AccessToken string
-
-	// OpenID openID
-	OpenID string
 )
 
 type (
 	// QQ qq
 	QQ struct {
-	}
-	// Response response
-	Response struct {
 		Ret             string `json:"ret"`                // 返回码
 		Msg             string `json:"msg"`                // 如果ret<0，会有相应的错误信息提示，返回数据全部用UTF-8编码。
 		NickName        string `json:"nickname"`           // 用户在QQ空间的昵称。
@@ -47,12 +38,12 @@ func NewQQ() *QQ {
 }
 
 // User user
-func (q QQ) User() (QQ, error) {
+func (q QQ) User(accessToken, openID string) (QQ, error) {
 	result := QQ{}
 	url := fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%s?&oauth_consumer_key=%s&openid=%s",
-		AccessToken,
+		accessToken,
 		AppID,
-		OpenID,
+		openID,
 	)
 	body, err := fetch.Cmd(fetch.Request{
 		Method: "GET",
