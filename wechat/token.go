@@ -84,10 +84,11 @@ func (t Token) Cache() (string, error) {
 	if err != nil {
 		result, err := t.Data()
 		if err != nil {
-			_ = cache.NewString().SET(key, result.AccessToken)
-			_ = cache.NewKey().EXPIRE(key, 7200)
-			return result.AccessToken, nil
+			return token, err
 		}
+		_ = cache.NewString().SET(key, result.AccessToken)
+		_ = cache.NewKey().EXPIRE(key, 7200)
+		return result.AccessToken, nil
 	}
 	return token, err
 }

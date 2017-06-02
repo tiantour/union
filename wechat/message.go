@@ -26,5 +26,6 @@ func (m Message) Do(body []byte) ([]byte, error) {
 	return fetch.Cmd(fetch.Request{
 		Method: "POST",
 		URL:    url,
+		Body:   body,
 	})
 }
