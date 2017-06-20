@@ -57,9 +57,6 @@ func (m MP) Verify(rawData MP, signature string) bool {
 	if err != nil {
 		return false
 	}
-	fmt.Println(fmt.Sprintf("%s%s",
-		string(body),
-		SessionKey))
 	data := rsae.NewRsae().SHA1(fmt.Sprintf("%s%s",
 		string(body),
 		SessionKey,
