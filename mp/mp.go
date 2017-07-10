@@ -36,6 +36,7 @@ type MP struct {
 	AvatarURL string `json:"avatarUrl"`         // 用户头像，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，0代表640*640正方形头像），用户没有头像时该项为空。若用户更换头像，原有头像URL将失效。
 	OpenID    string `json:"openid,omitempty"`  // 用户的唯一标识
 	UnionID   string `json:"unionid,omitempty"` // 只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。详见：获取用户个人信息（UnionID机制）
+	OpenGID   string `json:"openGId"`           // 群对当前小程序的唯一 ID
 }
 
 // Watermark water mark
