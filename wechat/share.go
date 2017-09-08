@@ -29,7 +29,7 @@ func NewShare() *Share {
 // Do do
 func (s Share) Do(page string) (Share, error) {
 	result := Share{
-		Noncestr:  imago.NewRandom().String(16),
+		Noncestr:  imago.NewRandom().Text(16),
 		Timestamp: strconv.FormatInt(time.Now().Unix(), 10),
 		URL:       page,
 	}

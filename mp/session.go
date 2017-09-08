@@ -11,8 +11,9 @@ import (
 
 // Session session
 type Session struct {
-	OpenID     string `json:"openid"`      // 开放ID
+	OpenID     string `json:"openid"`      // openid
 	SessionKey string `json:"session_key"` // session
+	UnionID    string `json:"unionid"`     // unionid
 	ErrCode    int    `json:"errcode"`     // 错误码
 	ErrMsg     string `json:"errmsg"`      // 错误提示
 }
@@ -47,7 +48,7 @@ func (s Session) Get(code string) (Session, error) {
 		return result, errors.New(result.ErrMsg)
 	}
 	// 写入缓存
-	_, _ = buffer.NewHash().Add(buffer.Buffer{
+	_, err = buffer.NewHash().Add(buffer.Buffer{
 		Action: fmt.Sprintf("mp:%s", AppID),
 		Map: map[string]interface{}{
 			result.OpenID: result.SessionKey,

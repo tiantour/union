@@ -25,6 +25,12 @@ type WMP struct {
 	Watermark Watermark `json:"watermark"` // 水印
 }
 
+// WP wechat phone
+type WP struct {
+	Phone
+	Watermark Watermark `json:"watermark"` // 水印
+}
+
 // MP  mini program
 type MP struct {
 	NickName  string `json:"nickName"`          // 用户昵称
@@ -37,6 +43,13 @@ type MP struct {
 	OpenID    string `json:"openid,omitempty"`  // 用户的唯一标识
 	UnionID   string `json:"unionid,omitempty"` // 只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。详见：获取用户个人信息（UnionID机制）
 	OpenGID   string `json:"openGId"`           // 群对当前小程序的唯一 ID
+}
+
+// Phone phone
+type Phone struct {
+	PhoneNumber     string `json:"phoneNumber"`     // 用户绑定的手机号
+	PurePhoneNumber string `json:"purePhoneNumber"` // 没有区号的手机号
+	CountryCode     string `json:"countryCode"`     // 区号
 }
 
 // Watermark water mark
@@ -53,6 +66,7 @@ func NewMP() *MP {
 // Verify verify
 // date 2017-06-19
 // author andy.jiang
+
 func (m MP) Verify(rawData MP, signature string) bool {
 	body, err := json.Marshal(rawData)
 	if err != nil {
@@ -98,4 +112,36 @@ func (m MP) User(encryptedData, iv string) (MP, error) {
 		return result, errors.New("appid not match")
 	}
 	return data.MP, nil
+}
+
+// Phone phone
+// date 2017-08-29
+// author andy.jiang
+func (m MP) Phone(encryptedData, iv string) (Phone, error) {
+	result := Phone{}
+	encryptedByte, err := rsae.NewRsae().Base64Decode(encryptedData)
+	if err != nil {
+		return result, err
+	}
+	sessionByte, err := rsae.NewRsae().Base64Decode(SessionKey)
+	if err != nil {
+		return result, err
+	}
+	ivByte, err := rsae.NewRsae().Base64Decode(iv)
+	if err != nil {
+		return result, err
+	}
+	body, err := rsae.NewRsae().AESDecrypt(encryptedByte, sessionByte, ivByte)
+	if err != nil {
+		return result, err
+	}
+	data := WP{}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return result, err
+	}
+	if data.Watermark.AppID != AppID {
+		return result, errors.New("appid not match")
+	}
+	return data.Phone, nil
 }
