@@ -48,11 +48,8 @@ func (s Session) Get(code string) (Session, error) {
 		return result, errors.New(result.ErrMsg)
 	}
 	// 写入缓存
-	_, err = buffer.NewHash().Add(buffer.Buffer{
-		Action: fmt.Sprintf("mp:%s", AppID),
-		Map: map[string]interface{}{
-			result.OpenID: result.SessionKey,
-		},
+	_, err = buffer.NewHash().Add("mp", AppID, map[string]interface{}{
+		result.OpenID: result.SessionKey,
 	}).Str()
 	return result, err
 }
