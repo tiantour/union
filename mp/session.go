@@ -50,6 +50,6 @@ func (s Session) Get(code string) (Session, error) {
 	// 写入缓存
 	_, err = buffer.NewHash().Add("mp", AppID, map[string]interface{}{
 		result.OpenID: result.SessionKey,
-	}).Str()
+	})
 	return result, err
 }
