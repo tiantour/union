@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/tiantour/fetch"
 	"github.com/tiantour/rsae"
 )
 
@@ -52,6 +53,15 @@ type Phone struct {
 	CountryCode     string `json:"countryCode"`     // 区号
 }
 
+// QR qr
+type QR struct {
+	Scene     string                 `json:"scene"`      // 场景
+	Page      string                 `json:"page"`       // 页面
+	Width     int                    `json:"width"`      // 宽度
+	AutoColor bool                   `json:"auto_color"` // 默认颜色
+	LineColor map[string]interface{} `json:"line_color"` // 线条颜色
+}
+
 // Watermark water mark
 type Watermark struct {
 	AppID     string `json:"appid,omitempty"`
@@ -66,7 +76,6 @@ func NewMP() *MP {
 // Verify verify
 // date 2017-06-19
 // author andy.jiang
-
 func (m MP) Verify(rawData MP, signature string) bool {
 	body, err := json.Marshal(rawData)
 	if err != nil {
@@ -144,4 +153,24 @@ func (m MP) Phone(encryptedData, iv string) (Phone, error) {
 		return result, errors.New("appid not match")
 	}
 	return data.Phone, nil
+}
+
+// QR qr
+// date 2017-11-23
+// author andy.jiang
+func (m MP) QR(args QR) (string, error) {
+	body, err := json.Marshal(args)
+	if err != nil {
+		return "", err
+	}
+	token, err := NewToken().Cache()
+	if err != nil {
+		return "", err
+	}
+	body, err = fetch.Cmd(fetch.Request{
+		Method: "POST",
+		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=%s", token),
+		Body:   body,
+	})
+	return rsae.NewRsae().Base64Encode(body), err
 }
