@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/tiantour/buffer"
 	"github.com/tiantour/fetch"
 )
 
@@ -47,9 +46,5 @@ func (s Session) Get(code string) (Session, error) {
 	if result.ErrCode != 0 {
 		return result, errors.New(result.ErrMsg)
 	}
-	// 写入缓存
-	_, err = buffer.NewHash().Add("mp", AppID, map[string]interface{}{
-		result.OpenID: result.SessionKey,
-	})
 	return result, err
 }
