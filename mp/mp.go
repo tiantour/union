@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/tiantour/fetch"
+	"github.com/tiantour/image"
 	"github.com/tiantour/rsae"
 )
 
@@ -172,6 +173,5 @@ func (m MP) QR(args QR) (string, error) {
 		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=%s", token),
 		Body:   body,
 	})
-	fmt.Println(string(body))
-	return rsae.NewRsae().Base64Encode(body), err
+	return image.NewUpyun().Local(body)
 }
