@@ -81,7 +81,7 @@ func (t Token) Verify(accessToken, openID string) (Token, error) {
 func (t Token) Cache() (string, error) {
 	key := fmt.Sprintf("string:data:wechat:access:token:%s", AppID)
 	token, err := cache.NewString().GET(key).Str()
-	if err != nil {
+	if err != nil || token == "" {
 		result, err := t.Data()
 		if err != nil {
 			return token, err
