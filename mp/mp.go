@@ -75,7 +75,6 @@ func NewMP() *MP {
 
 // User user
 func (m *MP) User(encryptedData, iv string) (*MP, error) {
-	result := MP{}
 	encryptedByte, err := rsae.NewBase64().Decode(encryptedData)
 	if err != nil {
 		return nil, err
@@ -119,7 +118,6 @@ func (m *MP) Verify(rawData *MP, signature string) bool {
 
 // Phone phone
 func (m *MP) Phone(encryptedData, iv string) (*Phone, error) {
-	result := Phone{}
 	encryptedByte, err := rsae.NewBase64().Decode(encryptedData)
 	if err != nil {
 		return nil, err
