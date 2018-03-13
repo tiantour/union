@@ -17,14 +17,6 @@ https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421140183
 
 */
 
-var (
-	// AppID appid
-	AppID string
-
-	// AppSecret app secret
-	AppSecret string
-)
-
 // Token token
 type Token struct {
 	AccessToken  string `json:"access_token"`  // 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
