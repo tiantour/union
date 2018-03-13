@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/tiantour/fetch"
-	"github.com/tiantour/image"
 	"github.com/tiantour/rsae"
 )
 
@@ -74,104 +73,93 @@ func NewMP() *MP {
 	return &MP{}
 }
 
+// User user
+func (m *MP) User(encryptedData, iv string) (*MP, error) {
+	result := MP{}
+	encryptedByte, err := rsae.NewBase64().Decode(encryptedData)
+	if err != nil {
+		return nil, err
+	}
+	sessionByte, err := rsae.NewBase64().Decode(SessionKey)
+	if err != nil {
+		return nil, err
+	}
+	ivByte, err := rsae.NewBase64().Decode(iv)
+	if err != nil {
+		return nil, err
+	}
+	body, err := rsae.NewAES().Decrypt(encryptedByte, sessionByte, ivByte)
+	if err != nil {
+		return nil, err
+	}
+	data := WMP{}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return nil, err
+	}
+	if data.Watermark.AppID != AppID {
+		return nil, errors.New("appid not match")
+	}
+	return &data.MP, nil
+}
+
 // Verify verify
-// date 2017-06-19
-// author andy.jiang
-func (m MP) Verify(rawData MP, signature string) bool {
+func (m *MP) Verify(rawData *MP, signature string) bool {
 	body, err := json.Marshal(rawData)
 	if err != nil {
 		return false
 	}
-	data := rsae.NewRsae().SHA1(fmt.Sprintf("%s%s",
-		string(body),
-		SessionKey,
-	))
-	if signature != fmt.Sprintf("%x", data) {
+	tmp := fmt.Sprintf("%s%s", string(body), SessionKey)
+	data := rsae.NewSHA().SHA1(tmp)
+	if signature != string(data) {
 		return false
 	}
 	return true
 }
 
-// User user
-// date 2017-06-19
-// author andy.jiang
-func (m MP) User(encryptedData, iv string) (MP, error) {
-	result := MP{}
-	encryptedByte, err := rsae.NewRsae().Base64Decode(encryptedData)
-	if err != nil {
-		return result, err
-	}
-	sessionByte, err := rsae.NewRsae().Base64Decode(SessionKey)
-	if err != nil {
-		return result, err
-	}
-	ivByte, err := rsae.NewRsae().Base64Decode(iv)
-	if err != nil {
-		return result, err
-	}
-	body, err := rsae.NewRsae().AESDecrypt(encryptedByte, sessionByte, ivByte)
-	if err != nil {
-		return result, err
-	}
-	data := WMP{}
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		return result, err
-	}
-	if data.Watermark.AppID != AppID {
-		return result, errors.New("appid not match")
-	}
-	return data.MP, nil
-}
-
 // Phone phone
-// date 2017-08-29
-// author andy.jiang
-func (m MP) Phone(encryptedData, iv string) (Phone, error) {
+func (m *MP) Phone(encryptedData, iv string) (*Phone, error) {
 	result := Phone{}
-	encryptedByte, err := rsae.NewRsae().Base64Decode(encryptedData)
+	encryptedByte, err := rsae.NewBase64().Decode(encryptedData)
 	if err != nil {
-		return result, err
+		return nil, err
 	}
-	sessionByte, err := rsae.NewRsae().Base64Decode(SessionKey)
+	sessionByte, err := rsae.NewBase64().Decode(SessionKey)
 	if err != nil {
-		return result, err
+		return nil, err
 	}
-	ivByte, err := rsae.NewRsae().Base64Decode(iv)
+	ivByte, err := rsae.NewBase64().Decode(iv)
 	if err != nil {
-		return result, err
+		return nil, err
 	}
-	body, err := rsae.NewRsae().AESDecrypt(encryptedByte, sessionByte, ivByte)
+	body, err := rsae.NewAES().Decrypt(encryptedByte, sessionByte, ivByte)
 	if err != nil {
-		return result, err
+		return nil, err
 	}
 	data := WP{}
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		return result, err
+		return nil, err
 	}
 	if data.Watermark.AppID != AppID {
-		return result, errors.New("appid not match")
+		return nil, errors.New("appid not match")
 	}
-	return data.Phone, nil
+	return &data.Phone, nil
 }
 
 // QR qr
-// date 2017-11-23
-// author andy.jiang
-func (m MP) QR(args QR) (string, error) {
+func (m *MP) QR(args *QR) ([]byte, error) {
 	body, err := json.Marshal(args)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	token, err := NewToken().Cache()
+	token, err := NewToken().Access()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	body, err = fetch.Cmd(fetch.Request{
+	return fetch.Cmd(fetch.Request{
 		Method: "POST",
 		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=%s", token),
 		Body:   body,
 	})
-	return image.NewUpyun().Local(body)
 }

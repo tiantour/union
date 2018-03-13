@@ -38,7 +38,7 @@ func NewQQ() *QQ {
 }
 
 // User user
-func (q QQ) User(accessToken, openID string) (QQ, error) {
+func (q *QQ) User(accessToken, openID string) (*QQ, error) {
 	result := QQ{}
 	url := fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%s?&oauth_consumer_key=%s&openid=%s",
 		accessToken,
@@ -50,8 +50,8 @@ func (q QQ) User(accessToken, openID string) (QQ, error) {
 		URL:    url,
 	})
 	if err != nil {
-		return result, err
+		return nil, err
 	}
 	err = json.Unmarshal(body, &result)
-	return result, err
+	return &result, err
 }

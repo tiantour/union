@@ -9,6 +9,22 @@ import (
 	"github.com/tiantour/fetch"
 )
 
+/*
+
+获取access_token
+
+https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421140183
+
+*/
+
+var (
+	// AppID appid
+	AppID string
+
+	// AppSecret app secret
+	AppSecret string
+)
+
 // Token token
 type Token struct {
 	AccessToken  string `json:"access_token"`  // 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
@@ -25,88 +41,41 @@ func NewToken() *Token {
 	return &Token{}
 }
 
-// Access token
-func (t Token) Access(code string) (Token, error) {
-	result := Token{}
-	url := fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code",
-		AppID,
-		AppSecret,
-		code,
-	)
-	body, err := fetch.Cmd(fetch.Request{
-		Method: "GET",
-		URL:    url,
-	})
-	if err != nil {
-		return result, err
-	}
-	err = json.Unmarshal(body, &result)
-	if err == nil && result.ErrCode != 0 {
-		return result, errors.New(result.ErrMsg)
-	}
-	return result, err
-}
-
-// Refresh token
-func (t Token) Refresh(refreshToken string) (Token, error) {
-	result := Token{}
-	url := fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=%s&grant_type=refresh_token&refresh_token=%s",
-		AppID,
-		refreshToken,
-	)
-	body, err := fetch.Cmd(fetch.Request{
-		Method: "GET",
-		URL:    url,
-	})
-	err = json.Unmarshal(body, &result)
-	return result, err
-}
-
-// Verify token
-func (t Token) Verify(accessToken, openID string) (Token, error) {
-	result := Token{}
-	url := fmt.Sprintf("https://api.weixin.qq.com/sns/auth?access_token=%s&openid=%s",
-		accessToken,
-		openID,
-	)
-	body, err := fetch.Cmd(fetch.Request{
-		Method: "GET",
-		URL:    url,
-	})
-	err = json.Unmarshal(body, &result)
-	return result, err
-}
-
-// Cache cache
-func (t Token) Cache() (string, error) {
-	key := fmt.Sprintf("string:data:wechat:access:token:%s", AppID)
+// Access access token
+func (t *Token) Access() (string, error) {
+	key := fmt.Sprintf("string:data:bind:access:token:%s", AppID)
 	token, err := cache.NewString().GET(key).Str()
-	if err != nil || token == "" {
-		result, err := t.Data()
+	if err != nil {
+		url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
+			AppID,
+			AppSecret,
+		)
+		result, err := t.do(url)
 		if err != nil {
-			return token, err
+			return "", err
 		}
-		_ = cache.NewString().SET(key, result.AccessToken)
-		_ = cache.NewKey().EXPIRE(key, 7200)
+		_ = cache.NewString().SET(key, result.AccessToken, "EX", 7200)
 		return result.AccessToken, nil
 	}
-	return token, err
+	return token, nil
 }
 
-// Data data
-func (t Token) Data() (Token, error) {
+// do do
+func (t *Token) do(url string) (*Token, error) {
 	result := Token{}
-	url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
-		AppID,
-		AppSecret,
-	)
 	body, err := fetch.Cmd(fetch.Request{
 		Method: "GET",
 		URL:    url,
 	})
 	if err != nil {
-		return result, err
+		return nil, err
 	}
 	err = json.Unmarshal(body, &result)
-	return result, err
+	if err == nil {
+		return nil, err
+	}
+	if result.ErrCode != 0 {
+		return nil, errors.New(result.ErrMsg)
+	}
+	return &result, err
 }
