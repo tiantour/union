@@ -71,7 +71,7 @@ func (t *Token) do(url string) (*Token, error) {
 		return nil, err
 	}
 	err = json.Unmarshal(body, &result)
-	if err == nil {
+	if err != nil {
 		return nil, err
 	}
 	if result.ErrCode != 0 {
