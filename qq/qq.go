@@ -53,5 +53,8 @@ func (q *QQ) User(accessToken, openID string) (*QQ, error) {
 		return nil, err
 	}
 	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, err
+	}
 	return &result, err
 }

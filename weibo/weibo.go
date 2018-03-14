@@ -59,12 +59,12 @@ func NewWeibo() *Weibo {
 
 // User user
 func (w *Weibo) User(accessToken, uID string) (*Weibo, error) {
-	result := Weibo{}
 	url := fmt.Sprintf("https://api.weibo.com/2/users/show.json?source=%s&access_token=%s&uid=%s",
 		AppID,
 		accessToken,
 		uID,
 	)
+	result := Weibo{}
 	body, err := fetch.Cmd(fetch.Request{
 		Method: "GET",
 		URL:    url,
@@ -73,5 +73,8 @@ func (w *Weibo) User(accessToken, uID string) (*Weibo, error) {
 		return nil, err
 	}
 	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, err
+	}
 	return &result, err
 }

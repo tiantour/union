@@ -38,12 +38,16 @@ func NewWechat() *Wechat {
 }
 
 // User user
-func (w *Wechat) User(accessToken, openID string) (*Wechat, error) {
-	result := Wechat{}
+func (w *Wechat) User(code string) (*Wechat, error) {
+	token, err := NewToken().Access(code)
+	if err != nil {
+		return nil, err
+	}
 	url := fmt.Sprintf("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s",
-		accessToken,
-		openID,
+		token.AccessToken,
+		token.OpenID,
 	)
+	result := Wechat{}
 	body, err := fetch.Cmd(fetch.Request{
 		Method: "GET",
 		URL:    url,
