@@ -20,20 +20,11 @@ var (
 	SessionKey string
 )
 
-// WMP watermark mp
-type WMP struct {
-	MP
-	Watermark Watermark `json:"watermark"` // 水印
-}
+// MP mp
+type MP struct{}
 
-// WP wechat phone
-type WP struct {
-	Phone
-	Watermark Watermark `json:"watermark"` // 水印
-}
-
-// MP  mini program
-type MP struct {
+// User user
+type User struct {
 	NickName  string `json:"nickName"`          // 用户昵称
 	Gender    int    `json:"gender"`            // 用户的性别，值为1时是男性，值为2时是女性，值为0时是未知
 	Language  string `json:"language"`          // 语言
@@ -62,10 +53,38 @@ type QR struct {
 	LineColor map[string]interface{} `json:"line_color"` // 线条颜色
 }
 
-// Watermark water mark
+// Image image
+type Image struct {
+	Media []byte `json:"media"` // 媒体
+}
+
+// Message message
+type Message struct {
+	Content string `json:"content"` // 内容
+}
+
+// Watermark watermark
 type Watermark struct {
 	AppID     string `json:"appid,omitempty"`
 	TimeStamp int    `json:"timestamp,omitempty"`
+}
+
+// Result result
+type Result struct {
+	ErrCode int    `json:"errcode"` // 错误代码
+	ErrMsg  string `json:"errmsg"`  // 错误消息
+}
+
+// WU watermark user
+type WU struct {
+	User
+	Watermark Watermark `json:"watermark"` // 水印
+}
+
+// WP watermark phone
+type WP struct {
+	Phone
+	Watermark Watermark `json:"watermark"` // 水印
 }
 
 // NewMP new mini program
@@ -74,7 +93,7 @@ func NewMP() *MP {
 }
 
 // User user
-func (m *MP) User(encryptedData, iv string) (*MP, error) {
+func (m *MP) User(encryptedData, iv string) (*User, error) {
 	encryptedByte, err := rsae.NewBase64().Decode(encryptedData)
 	if err != nil {
 		return nil, err
@@ -91,7 +110,7 @@ func (m *MP) User(encryptedData, iv string) (*MP, error) {
 	if err != nil {
 		return nil, err
 	}
-	data := WMP{}
+	data := WU{}
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		return nil, err
@@ -99,7 +118,7 @@ func (m *MP) User(encryptedData, iv string) (*MP, error) {
 	if data.Watermark.AppID != AppID {
 		return nil, errors.New("appid not match")
 	}
-	return &data.MP, nil
+	return &data.User, nil
 }
 
 // Verify verify
@@ -155,9 +174,72 @@ func (m *MP) QR(args *QR) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return fetch.Cmd(fetch.Request{
+	body, err = fetch.Cmd(fetch.Request{
 		Method: "POST",
 		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=%s", token),
 		Body:   body,
 	})
+	if len(body) < 256 {
+		data := Result{}
+		err = json.Unmarshal(body, &data)
+		if err != nil {
+			return body, err
+		}
+		if data.ErrCode != 0 {
+			return nil, errors.New(data.ErrMsg)
+		}
+	}
+	return body, err
+}
+
+// Image image
+func (m *MP) Image(args *Image) ([]byte, error) {
+	body, err := json.Marshal(args)
+	if err != nil {
+		return nil, err
+	}
+	token, err := NewToken().Access()
+	if err != nil {
+		return nil, err
+	}
+	body, err = fetch.Cmd(fetch.Request{
+		Method: "POST",
+		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/img_sec_check?access_token=%s", token),
+		Body:   body,
+	})
+	data := Result{}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return nil, err
+	}
+	if data.ErrCode != 0 {
+		return nil, errors.New(data.ErrMsg)
+	}
+	return body, err
+}
+
+// Message message
+func (m *MP) Message(args *Message) ([]byte, error) {
+	body, err := json.Marshal(args)
+	if err != nil {
+		return nil, err
+	}
+	token, err := NewToken().Access()
+	if err != nil {
+		return nil, err
+	}
+	body, err = fetch.Cmd(fetch.Request{
+		Method: "POST",
+		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/msg_sec_check?access_token=%s", token),
+		Body:   body,
+	})
+	data := Result{}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return nil, err
+	}
+	if data.ErrCode != 0 {
+		return nil, errors.New(data.ErrMsg)
+	}
+	return body, err
 }

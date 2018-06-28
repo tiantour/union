@@ -13,8 +13,7 @@ type Session struct {
 	OpenID     string `json:"openid"`      // openid
 	SessionKey string `json:"session_key"` // session
 	UnionID    string `json:"unionid"`     // unionid
-	ErrCode    int    `json:"errcode"`     // 错误码
-	ErrMsg     string `json:"errmsg"`      // 错误提示
+	Result
 }
 
 // NewSession new session

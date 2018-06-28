@@ -9,14 +9,6 @@ import (
 	"github.com/tiantour/fetch"
 )
 
-/*
-
-获取access_token
-
-https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421140183
-
-*/
-
 // Token token
 type Token struct {
 	AccessToken  string `json:"access_token"`  // 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
@@ -24,8 +16,7 @@ type Token struct {
 	RefreshToken string `json:"refresh_token"` // 用户刷新access_token
 	OpenID       string `json:"openid"`        // 用户唯一标识
 	Scope        string `json:"scope"`         // 用户授权的作用域，使用逗号（,）分隔
-	ErrCode      int    `json:"errcode"`       // 错误代码
-	ErrMsg       string `json:"errmsg"`        // 错误消息
+	Result
 }
 
 // NewToken new token
