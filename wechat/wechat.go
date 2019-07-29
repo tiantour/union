@@ -47,7 +47,6 @@ func (w *Wechat) User(code string) (*Wechat, error) {
 		token.AccessToken,
 		token.OpenID,
 	)
-	result := Wechat{}
 	body, err := fetch.Cmd(fetch.Request{
 		Method: "GET",
 		URL:    url,
@@ -55,6 +54,7 @@ func (w *Wechat) User(code string) (*Wechat, error) {
 	if err != nil {
 		return nil, err
 	}
+	result := Wechat{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err
