@@ -62,6 +62,11 @@ type (
 	}
 )
 
+// NewAlipay new alipay
+func NewAlipay() *Alipay {
+	return &Alipay{}
+}
+
 // User user
 func (a *Alipay) User(code string) (*Alipay, error) {
 	token, err := NewToken().Access(code)
