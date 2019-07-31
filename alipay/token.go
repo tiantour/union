@@ -37,10 +37,8 @@ func (t *Token) Access(code string) (string, error) {
 		SignType:  "RSA2",
 		TimeStamp: tempo.NewNow().String(),
 		Version:   "1.0",
-		Parameter: &Parameter{
-			GrantType: "authorization_code",
-			Code:      code,
-		},
+		GrantType: "authorization_code",
+		Code:      code,
 	}
 	sign, err := t.Sign(args, PrivatePath)
 	if err != nil {

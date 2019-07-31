@@ -34,20 +34,16 @@ type (
 	}
 	// Request request
 	Request struct {
-		AppID        string `json:"app_id,omitempty" url:"app_id,omitempty"`             // 是 应用ID
-		Method       string `json:"method,omitempty" url:"method,omitempty"`             // 是 接口名称
-		Format       string `json:"format,omitempty" url:"format,omitempty"`             // 否 JSON
-		Charset      string `json:"charset,omitempty" url:"charset,omitempty"`           // 是 utf-8
-		SignType     string `json:"sign_type,omitempty" url:"sign_type,omitempty"`       // 是 RSA2
-		Sign         string `json:"sign,omitempty" url:"sign,omitempty"`                 // 是 签名
-		TimeStamp    string `json:"timestamp,omitempty" url:"timestamp,omitempty"`       // 是 时间
-		Version      string `json:"version,omitempty" url:"version,omitempty"`           // 是 1.0
-		AuthToken    string `json:"auth_token,omitempty" url:"auth_token,omitempty"`     // 是 用户授权
-		AppAuthToken string `json:"app_auth_token,omitempty" url:"auth_token,omitempty"` // 否 应用授权
-		*Parameter
-	}
-	// Parameter parameter
-	Parameter struct {
+		AppID        string `json:"app_id,omitempty" url:"app_id,omitempty"`               // 是 应用ID
+		Method       string `json:"method,omitempty" url:"method,omitempty"`               // 是 接口名称
+		Format       string `json:"format,omitempty" url:"format,omitempty"`               // 否 JSON
+		Charset      string `json:"charset,omitempty" url:"charset,omitempty"`             // 是 utf-8
+		SignType     string `json:"sign_type,omitempty" url:"sign_type,omitempty"`         // 是 RSA2
+		Sign         string `json:"sign,omitempty" url:"sign,omitempty"`                   // 是 签名
+		TimeStamp    string `json:"timestamp,omitempty" url:"timestamp,omitempty"`         // 是 时间
+		Version      string `json:"version,omitempty" url:"version,omitempty"`             // 是 1.0
+		AuthToken    string `json:"auth_token,omitempty" url:"auth_token,omitempty"`       // 是 用户授权
+		AppAuthToken string `json:"app_auth_token,omitempty" url:"auth_token,omitempty"`   // 否 应用授权
 		GrantType    string `json:"grant_type,omitempty" url:"auth_token,omitempty"`       // 是 值为authorization_code时，代表用code换取；值为refresh_token时，代表用refresh_token换取
 		Code         string `json:"code,omitempty" url:"code,omitempty"`                   // 否 授权码
 		RefreshToken string `json:"refresh_token,omitempty" url:"refresh_token,omitempty"` // 否 刷新令牌
