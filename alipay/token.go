@@ -76,7 +76,7 @@ func (t *Token) Sign(args interface{}, privatePath string) (string, error) {
 		return "", err
 	}
 	privateKey, err := imago.NewFile().Read(privatePath)
-	fmt.Println(3, privateKey)
+	fmt.Println(3, string(privateKey))
 	if err != nil {
 		return "", err
 	}
