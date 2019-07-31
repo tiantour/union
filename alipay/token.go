@@ -61,9 +61,7 @@ func (t *Token) Access(code string) (string, error) {
 
 // Sign trade sign
 func (t *Token) Sign(args interface{}, privatePath string) (string, error) {
-	fmt.Println(0, args, privatePath)
 	params, err := query.Values(args)
-	fmt.Println(1, params)
 	if err != nil {
 		return "", err
 	}
@@ -71,28 +69,15 @@ func (t *Token) Sign(args interface{}, privatePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(2, query)
-	if err != nil {
-		return "", err
-	}
 	privateKey, err := imago.NewFile().Read(privatePath)
-	fmt.Println(3, string(privateKey))
 	if err != nil {
 		return "", err
 	}
 	sign, err := rsae.NewRSA().Sign(query, privateKey)
-	fmt.Println(4, sign, err)
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(5, fmt.Sprintf("%s&sign=%s",
-		query,
-		url.QueryEscape(sign),
-	))
-	return fmt.Sprintf("%s&sign=%s",
-		query,
-		url.QueryEscape(sign),
-	), nil
+	return fmt.Sprintf("%s&sign=%s", query, url.QueryEscape(sign)), nil
 }
 
 // Verify verify
