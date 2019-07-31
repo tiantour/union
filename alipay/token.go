@@ -75,7 +75,8 @@ func (t *Token) Sign(args interface{}, privatePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s&sign=%s", query, url.QueryEscape(sign)), nil
+	path := fmt.Sprintf("%s&sign=%s", query, sign)
+	return url.QueryEscape(path), nil
 }
 
 // Verify verify
