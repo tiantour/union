@@ -61,6 +61,7 @@ func (t *Token) Access(code string) (string, error) {
 
 // Sign trade sign
 func (t *Token) Sign(args interface{}, privatePath string) (string, error) {
+	fmt.Println(0, args, privatePath)
 	params, err := query.Values(args)
 	fmt.Println(1, params)
 	if err != nil {
