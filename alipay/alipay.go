@@ -48,9 +48,9 @@ type (
 	}
 	// Parameter parameter
 	Parameter struct {
-		GrantType    string `json:"grant_type,omitempty"`    // 是 值为authorization_code时，代表用code换取；值为refresh_token时，代表用refresh_token换取
-		Code         string `json:"code,omitempty"`          // 否 授权码
-		RefreshToken string `json:"refresh_token,omitempty"` // 否 刷新令牌
+		GrantType    string `json:"grant_type,omitempty" url:"auth_token,omitempty"`       // 是 值为authorization_code时，代表用code换取；值为refresh_token时，代表用refresh_token换取
+		Code         string `json:"code,omitempty" url:"code,omitempty"`                   // 否 授权码
+		RefreshToken string `json:"refresh_token,omitempty" url:"refresh_token,omitempty"` // 否 刷新令牌
 	}
 	// Response response
 	Response struct {
