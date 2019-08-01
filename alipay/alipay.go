@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/google/go-querystring/query"
 	"github.com/tiantour/fetch"
 	"github.com/tiantour/tempo"
 )
@@ -79,7 +80,11 @@ func (a *Alipay) User(code string) (*Alipay, error) {
 		Version:   "1.0",
 		AuthToken: token,
 	}
-	sign, err := NewToken().Sign(args, PrivatePath)
+	tmp, err := query.Values(args)
+	if err != nil {
+		return nil, err
+	}
+	sign, err := NewToken().Sign(&tmp, PrivatePath)
 	if err != nil {
 		return nil, err
 	}
