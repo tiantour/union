@@ -14,13 +14,7 @@ import (
 )
 
 // Token token
-type Token struct {
-	UserID       int64  `json:"user_id,omitempty"`       // 是 支付宝用户的唯一userId
-	AccessToken  string `json:"access_token,omitempty"`  // 是 访问令牌。通过该令牌调用需要授权类接口
-	ExpiresIn    int32  `json:"expires_in,omitempty"`    // 是 访问令牌的有效时间，单位是秒。
-	RefreshToken string `json:"refresh_token,omitempty"` // 是 刷新令牌。通过该令牌可以刷新access_token
-	ReExpiresIn  int32  `json:"re_expires_in,omitempty"` // 是 刷新令牌的有效时间，单位是秒。
-}
+type Token struct{}
 
 // NewToken new token
 func NewToken() *Token {
@@ -56,9 +50,9 @@ func (t *Token) Access(code string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	result := Token{}
+	result := Result{}
 	err = json.Unmarshal(body, &result)
-	return result.AccessToken, err
+	return result.AlipaySystemOauthTokenResponse.AccessToken, err
 }
 
 // Sign trade sign
