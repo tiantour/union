@@ -27,7 +27,8 @@ func NewToken() *Token {
 // Access access token
 func (t *Token) Access() (string, error) {
 	key := fmt.Sprintf("string:data:bind:access:token:%s", AppID)
-	token, err := cache.NewString().GET(key).Str()
+	var token string
+	err := cache.NewString().GET(&token, key)
 	if err != nil {
 		url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
 			AppID,
@@ -37,7 +38,7 @@ func (t *Token) Access() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		_ = cache.NewString().SET(key, result.AccessToken, "EX", 7200)
+		_ = cache.NewString().SET(nil, key, result.AccessToken, "EX", 7200)
 		return result.AccessToken, nil
 	}
 	return token, nil
