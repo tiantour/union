@@ -169,10 +169,12 @@ func (m *MP) Phone(encryptedData, iv string) (*Phone, error) {
 // QR qr
 func (m *MP) QR(args *QR) ([]byte, error) {
 	body, err := json.Marshal(args)
+	fmt.Println(1, string(body), err)
 	if err != nil {
 		return nil, err
 	}
 	token, err := NewToken().Access()
+	fmt.Println(2, token, err)
 	if err != nil {
 		return nil, err
 	}
@@ -181,6 +183,7 @@ func (m *MP) QR(args *QR) ([]byte, error) {
 		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=%s", token),
 		Body:   body,
 	})
+	fmt.Println(3, string(body), err)
 	if len(body) < 256 {
 		data := Result{}
 		err = json.Unmarshal(body, &data)
