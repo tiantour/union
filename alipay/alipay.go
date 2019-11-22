@@ -85,6 +85,7 @@ func NewAlipay() *Alipay {
 // User user
 func (a *Alipay) User(code string) (*User, error) {
 	token, err := NewToken().Access(code)
+	fmt.Println(11, token, err)
 	if err != nil {
 		return nil, err
 	}
@@ -99,10 +100,12 @@ func (a *Alipay) User(code string) (*User, error) {
 		AuthToken: token,
 	}
 	tmp, err := query.Values(args)
+	fmt.Println(12, tmp.Encode(), err)
 	if err != nil {
 		return nil, err
 	}
 	sign, err := NewToken().Sign(&tmp, PrivatePath)
+	fmt.Println(14, sign, err)
 	if err != nil {
 		return nil, err
 	}
@@ -111,6 +114,7 @@ func (a *Alipay) User(code string) (*User, error) {
 		Method: "GET",
 		URL:    url,
 	})
+	fmt.Println(14, string(body), err)
 	if err != nil {
 		return nil, err
 	}
