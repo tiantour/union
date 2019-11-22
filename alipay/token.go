@@ -38,6 +38,7 @@ func (t *Token) Access(code string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	fmt.Println(1, tmp.Encode())
 	sign, err := t.Sign(&tmp, PrivatePath)
 	if err != nil {
 		return "", err
@@ -47,6 +48,7 @@ func (t *Token) Access(code string) (string, error) {
 		Method: "GET",
 		URL:    url,
 	})
+	fmt.Println(2, string(body))
 	if err != nil {
 		return "", err
 	}
