@@ -54,11 +54,11 @@ type (
 	}
 	// Oauth oauth
 	Oauth struct {
-		UserID       string `json:"user_id,omitempty"`       // 是 支付宝用户的唯一userId
-		AccessToken  string `json:"access_token,omitempty"`  // 是 访问令牌。通过该令牌调用需要授权类接口
-		ExpiresIn    int32  `json:"expires_in,omitempty"`    // 是 访问令牌的有效时间，单位是秒。
-		RefreshToken string `json:"refresh_token,omitempty"` // 是 刷新令牌。通过该令牌可以刷新access_token
-		ReExpiresIn  int32  `json:"re_expires_in,omitempty"` // 是 刷新令牌的有效时间，单位是秒。
+		UserID       string `json:"alipay_user_id,omitempty"` // 是 支付宝用户的唯一userId
+		AccessToken  string `json:"access_token,omitempty"`   // 是 访问令牌。通过该令牌调用需要授权类接口
+		ExpiresIn    int32  `json:"expires_in,omitempty"`     // 是 访问令牌的有效时间，单位是秒。
+		RefreshToken string `json:"refresh_token,omitempty"`  // 是 刷新令牌。通过该令牌可以刷新access_token
+		ReExpiresIn  int32  `json:"re_expires_in,omitempty"`  // 是 刷新令牌的有效时间，单位是秒。
 		*Response
 	}
 	// User user
