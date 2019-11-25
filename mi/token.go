@@ -22,7 +22,7 @@ func NewToken() *Token {
 }
 
 // Access access token
-func (t *Token) Access(code string) (string, error) {
+func (t *Token) Access(code string) (*Oauth, error) {
 	args := &Request{
 		AppID:     AppID,
 		Method:    "alipay.system.oauth.token",
@@ -36,25 +36,23 @@ func (t *Token) Access(code string) (string, error) {
 	}
 	tmp, err := query.Values(args)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	fmt.Println(1, tmp.Encode())
 	sign, err := t.Sign(&tmp, PrivatePath)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	url := fmt.Sprintf("https://openapi.alipay.com/gateway.do?%s", sign)
 	body, err := fetch.Cmd(fetch.Request{
 		Method: "GET",
 		URL:    url,
 	})
-	fmt.Println(2, string(body))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	result := Result{}
 	err = json.Unmarshal(body, &result)
-	return result.AlipaySystemOauthTokenResponse.AccessToken, err
+	return &result.AlipaySystemOauthTokenResponse, err
 }
 
 // Sign trade sign

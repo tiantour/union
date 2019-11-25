@@ -2,11 +2,6 @@ package alipay
 
 import (
 	"encoding/json"
-	"fmt"
-
-	"github.com/google/go-querystring/query"
-	"github.com/tiantour/fetch"
-	"github.com/tiantour/tempo"
 )
 
 var (
@@ -19,9 +14,8 @@ var (
 )
 
 type (
-	// Alipay alipay
-	Alipay struct {
-	}
+	// MI mi
+	MI struct{}
 	// Request request
 	Request struct {
 		AppID        string `json:"app_id,omitempty" url:"app_id,omitempty"`                 // 是 应用ID
@@ -38,12 +32,6 @@ type (
 		Code         string `json:"code,omitempty" url:"code,omitempty"`                     // 否 授权码
 		RefreshToken string `json:"refresh_token,omitempty" url:"refresh_token,omitempty"`   // 否 刷新令牌
 	}
-	// Result result
-	Result struct {
-		AlipaySystemOauthTokenResponse Oauth  `json:"alipay_system_oauth_token_response,omitempty"` // 内容
-		AlipayUserInfoShareResponse    User   `json:"alipay_user_info_share_response,omitempty"`    // 内容
-		Sign                           string `json:"sign,omitempty"`                               // 签名
-	}
 	// Response response
 	Response struct {
 		Code    string `json:"code,omitempty"`     // 是 网关返回码
@@ -51,6 +39,12 @@ type (
 		SubCode string `json:"sub_code,omitempty"` // 否 业务返回码
 		SubMsg  string `json:"sub_msg,omitempty"`  // 是 业务返回码描述
 		Sign    string `json:"sign,omitempty"`     // 是 签名
+	}
+	// Result result
+	Result struct {
+		AlipaySystemOauthTokenResponse Oauth  `json:"alipay_system_oauth_token_response,omitempty"` // 内容
+		AlipayUserInfoShareResponse    User   `json:"alipay_user_info_share_response,omitempty"`    // 内容
+		Sign                           string `json:"sign,omitempty"`                               // 签名
 	}
 	// Oauth oauth
 	Oauth struct {
@@ -63,62 +57,33 @@ type (
 	}
 	// User user
 	User struct {
-		UserID             string `json:"user_id,omitempty"`              // 是 用户ID
-		Avatar             string `json:"avatar,omitempty"`               // 是 用户头像
-		Province           string `json:"province,omitempty"`             // 是 省份
-		City               string `json:"city,omitempty"`                 // 是 城市
-		NickName           string `json:"nick_name,omitempty"`            // 是 用户暱称
-		IsStudentCertified string `json:"is_student_certified,omitempty"` // 否 是否学生
-		UserType           string `json:"user_type,omitempty"`            // 否 用户类型
-		UserStatus         string `json:"user_status,omitempty"`          // 否 用户状态
-		IsCertified        string `json:"is_certified,omitempty"`         // 否 是否实名
-		Gender             string `json:"gender,omitempty"`               // 否 用户性别
+		UserID      string `json:"user_id,omitempty"`     // 是 用户ID
+		NickName    string `json:"nickName,omitempty"`    // 是 用户暱称
+		Avatar      string `json:"avatar,omitempty"`      // 是 用户头像
+		Gender      string `json:"gender,omitempty"`      // 否 用户性别
+		CountryCode string `json:"countryCode,omitempty"` // 国家编码
+		Province    string `json:"province,omitempty"`    // 是 省份
+		City        string `json:"city,omitempty"`        // 是 城市
 		*Response
 	}
 )
 
-// NewAlipay new alipay
-func NewAlipay() *Alipay {
-	return &Alipay{}
+// NewMI new mi
+func NewMi() *MI {
+	return &MI{}
 }
 
 // User user
-func (a *Alipay) User(code string) (*User, error) {
-	token, err := NewToken().Access(code)
-	fmt.Println(11, token, err)
+func (m *MI) User(code, content string) (*User, error) {
+	user := User{}
+	err := json.Unmarshal([]byte(content), &user)
 	if err != nil {
 		return nil, err
 	}
-	args := &Request{
-		AppID:     AppID,
-		Method:    "alipay.user.info.share",
-		Format:    "JSON",
-		Charset:   "utf-8",
-		SignType:  "RSA2",
-		TimeStamp: tempo.NewNow().String(),
-		Version:   "1.0",
-		AuthToken: token,
-	}
-	tmp, err := query.Values(args)
-	fmt.Println(12, tmp.Encode(), err)
+	oauth, err := NewToken().Access(code)
 	if err != nil {
 		return nil, err
 	}
-	sign, err := NewToken().Sign(&tmp, PrivatePath)
-	fmt.Println(14, sign, err)
-	if err != nil {
-		return nil, err
-	}
-	url := fmt.Sprintf("https://openapi.alipay.com/gateway.do?sign=%s", sign)
-	body, err := fetch.Cmd(fetch.Request{
-		Method: "GET",
-		URL:    url,
-	})
-	fmt.Println(14, string(body), err)
-	if err != nil {
-		return nil, err
-	}
-	result := Result{}
-	err = json.Unmarshal(body, &result)
-	return &result.AlipayUserInfoShareResponse, err
+	user.UserID = oauth.UserID
+	return &user, nil
 }
