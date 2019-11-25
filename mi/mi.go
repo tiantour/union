@@ -69,7 +69,7 @@ type (
 )
 
 // NewMI new mi
-func NewMi() *MI {
+func NewMI() *MI {
 	return &MI{}
 }
 
