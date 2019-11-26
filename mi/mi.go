@@ -2,6 +2,10 @@ package mi
 
 import (
 	"encoding/json"
+	"errors"
+
+	"github.com/tiantour/imago"
+	"github.com/tiantour/rsae"
 )
 
 var (
@@ -34,11 +38,12 @@ type (
 	}
 	// Response response
 	Response struct {
-		Code    string `json:"code,omitempty"`     // 是 网关返回码
-		Msg     string `json:"msg,omitempty"`      // 是 网关返回码描述
-		SubCode string `json:"sub_code,omitempty"` // 否 业务返回码
-		SubMsg  string `json:"sub_msg,omitempty"`  // 是 业务返回码描述
-		Sign    string `json:"sign,omitempty"`     // 是 签名
+		Code     string `json:"code,omitempty"`     // 是 网关返回码
+		Msg      string `json:"msg,omitempty"`      // 是 网关返回码描述
+		SubCode  string `json:"sub_code,omitempty"` // 否 业务返回码
+		SubMsg   string `json:"sub_msg,omitempty"`  // 是 业务返回码描述
+		Sign     string `json:"sign,omitempty"`     // 是 签名
+		Response string `json:"response,omitempty"` // 否 内容
 	}
 	// Result result
 	Result struct {
@@ -86,4 +91,24 @@ func (m *MI) User(code, content string) (*User, error) {
 	}
 	user.UserID = oauth.UserID
 	return &user, nil
+}
+
+// Phone phone
+func (m *MI) Phone(content, publicPath string) ([]byte, error) {
+	data := Response{}
+	err := json.Unmarshal([]byte(content), &data)
+	if err != nil {
+		return nil, err
+	}
+	publicKey, err := imago.NewFile().Read(publicPath)
+	if err != nil {
+		return nil, err
+	}
+	// Verify
+	ok, err := rsae.NewRSA().Verify(data.Response, data.Sign, []byte(publicKey))
+	if !ok {
+		return nil, errors.New("签名错误")
+	}
+	// Decrypt
+	return rsae.NewAES().Decrypt([]byte(data.Response), []byte("RgTvtKjTvyN9W+6y/C094w=="), []byte("0"))
 }
