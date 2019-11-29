@@ -2,7 +2,7 @@ package mi
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 
 	"github.com/tiantour/imago"
 	"github.com/tiantour/rsae"
@@ -11,6 +11,8 @@ import (
 var (
 	// AppID appid
 	AppID string
+	// AesKey aes key
+	AesKey string
 	// PrivatePath private path
 	PrivatePath string
 	// PublicPath public path
@@ -94,21 +96,31 @@ func (m *MI) User(code, content string) (*User, error) {
 }
 
 // Phone phone
-func (m *MI) Phone(content, publicPath string) ([]byte, error) {
+func (m *MI) Phone(content string) ([]byte, error) {
 	data := Response{}
 	err := json.Unmarshal([]byte(content), &data)
 	if err != nil {
 		return nil, err
 	}
-	publicKey, err := imago.NewFile().Read(publicPath)
+	publicKey, err := imago.NewFile().Read(PublicPath)
 	if err != nil {
 		return nil, err
 	}
-	// Verify
-	ok, err := rsae.NewRSA().Verify(data.Response, data.Sign, []byte(publicKey))
+
+	origdata := fmt.Sprintf("\"" + data.Response + "\"")
+	ok, err := rsae.NewRSA().Verify(origdata, data.Sign, publicKey)
 	if !ok {
-		return nil, errors.New("签名错误")
+		return nil, err
 	}
-	// Decrypt
-	return rsae.NewAES().Decrypt([]byte(data.Response), []byte("RgTvtKjTvyN9W+6y/C094w=="), []byte("0"))
+
+	iv := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	ciphertext, err := rsae.NewBase64().Decode(data.Response)
+	if err != nil {
+		return nil, err
+	}
+	key, err := rsae.NewBase64().Decode(AesKey)
+	if err != nil {
+		return nil, err
+	}
+	return rsae.NewAES().Decrypt(ciphertext, key, iv)
 }

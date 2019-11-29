@@ -2,7 +2,6 @@ package mi
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/url"
 
@@ -88,7 +87,7 @@ func (t *Token) Verify(args url.Values, publicPath string) error {
 	}
 	ok, err := rsae.NewRSA().Verify(query, sign, publicKey)
 	if !ok {
-		return errors.New("签名错误")
+		return err
 	}
 	return nil
 }
