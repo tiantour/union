@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/google/go-querystring/query"
+	"github.com/tiantour/fetch"
 	"github.com/tiantour/imago"
 	"github.com/tiantour/rsae"
+	"github.com/tiantour/tempo"
 )
 
 var (
@@ -22,6 +25,16 @@ var (
 type (
 	// MI mi
 	MI struct{}
+	// User user
+	User struct {
+		UserID      string `json:"user_id,omitempty"`     // 是 用户ID
+		NickName    string `json:"nickName,omitempty"`    // 是 用户暱称
+		Avatar      string `json:"avatar,omitempty"`      // 是 用户头像
+		Gender      string `json:"gender,omitempty"`      // 否 用户性别
+		CountryCode string `json:"countryCode,omitempty"` // 国家编码
+		Province    string `json:"province,omitempty"`    // 是 省份
+		City        string `json:"city,omitempty"`        // 是 城市
+	}
 	// Request request
 	Request struct {
 		AppID        string `json:"app_id,omitempty" url:"app_id,omitempty"`                 // 是 应用ID
@@ -37,41 +50,40 @@ type (
 		GrantType    string `json:"grant_type,omitempty" url:"grant_type,omitempty"`         // 是 值为authorization_code时，代表用code换取；值为refresh_token时，代表用refresh_token换取
 		Code         string `json:"code,omitempty" url:"code,omitempty"`                     // 否 授权码
 		RefreshToken string `json:"refresh_token,omitempty" url:"refresh_token,omitempty"`   // 否 刷新令牌
+		BizContent   string `json:"biz_content,omitempty" url:"biz_content,omitempty"`       // 请求参数的集合
 	}
 	// Response response
 	Response struct {
-		Code     string `json:"code,omitempty"`     // 是 网关返回码
-		Msg      string `json:"msg,omitempty"`      // 是 网关返回码描述
-		SubCode  string `json:"sub_code,omitempty"` // 否 业务返回码
-		SubMsg   string `json:"sub_msg,omitempty"`  // 是 业务返回码描述
-		Sign     string `json:"sign,omitempty"`     // 是 签名
-		Response string `json:"response,omitempty"` // 否 内容
+		Code    string `json:"code,omitempty"`     // 是 网关返回码
+		Msg     string `json:"msg,omitempty"`      // 是 网关返回码描述
+		SubCode string `json:"sub_code,omitempty"` // 否 业务返回码
+		SubMsg  string `json:"sub_msg,omitempty"`  // 是 业务返回码描述
+		Sign    string `json:"sign,omitempty"`     // 是 签名
+		*Next
 	}
-	// Result result
-	Result struct {
-		AlipaySystemOauthTokenResponse Oauth  `json:"alipay_system_oauth_token_response,omitempty"` // 内容
-		AlipayUserInfoShareResponse    User   `json:"alipay_user_info_share_response,omitempty"`    // 内容
-		Sign                           string `json:"sign,omitempty"`                               // 签名
-	}
-	// Oauth oauth
-	Oauth struct {
+	// Next next
+	Next struct {
 		UserID       string `json:"alipay_user_id,omitempty"` // 是 支付宝用户的唯一userId
 		AccessToken  string `json:"access_token,omitempty"`   // 是 访问令牌。通过该令牌调用需要授权类接口
 		ExpiresIn    int32  `json:"expires_in,omitempty"`     // 是 访问令牌的有效时间，单位是秒。
 		RefreshToken string `json:"refresh_token,omitempty"`  // 是 刷新令牌。通过该令牌可以刷新access_token
 		ReExpiresIn  int32  `json:"re_expires_in,omitempty"`  // 是 刷新令牌的有效时间，单位是秒。
-		*Response
+		Moblie       string `json:"mobile"`                   // 手机号
+		Response     string `json:"response,omitempty"`       // 否 内容
+		QrCodeURL    string `json:"qr_code_url,omitempty"`    // 二维码图片链接地址
 	}
-	// User user
-	User struct {
-		UserID      string `json:"user_id,omitempty"`     // 是 用户ID
-		NickName    string `json:"nickName,omitempty"`    // 是 用户暱称
-		Avatar      string `json:"avatar,omitempty"`      // 是 用户头像
-		Gender      string `json:"gender,omitempty"`      // 否 用户性别
-		CountryCode string `json:"countryCode,omitempty"` // 国家编码
-		Province    string `json:"province,omitempty"`    // 是 省份
-		City        string `json:"city,omitempty"`        // 是 城市
-		*Response
+	// Result result
+	Result struct {
+		AlipaySystemOauthTokenResponse    Response `json:"alipay_system_oauth_token_response,omitempty"`     // 内容
+		AlipayUserInfoShareResponse       Response `json:"alipay_user_info_share_response,omitempty"`        // 内容
+		AlipayOpenAppQrcodeCreateResponse Response `json:"alipay_open_app_qrcode_create_response,omitempty"` // 内容
+		Sign                              string   `json:"sign,omitempty"`                                   // 签名
+	}
+	// QR qr
+	QR struct {
+		URLParam   string `json:"url_param,omitempty"`   // 小程序中能访问到的页面路径。
+		QueryParam string `json:"query_param,omitempty"` // 小程序的启动参数，打开小程序的query，在小程序onLaunch的方法中获取。
+		Describe   int    `json:"describe,omitempty"`    // 对应的二维码描述。
 	}
 )
 
@@ -82,21 +94,21 @@ func NewMI() *MI {
 
 // User user
 func (m *MI) User(code, content string) (*User, error) {
+	response, err := NewToken().Access(code)
+	if err != nil {
+		return nil, err
+	}
 	user := User{}
-	err := json.Unmarshal([]byte(content), &user)
+	err = json.Unmarshal([]byte(content), &user)
 	if err != nil {
 		return nil, err
 	}
-	oauth, err := NewToken().Access(code)
-	if err != nil {
-		return nil, err
-	}
-	user.UserID = oauth.UserID
-	return &user, nil
+	user.UserID = response.UserID
+	return &user, err
 }
 
 // Phone phone
-func (m *MI) Phone(content string) ([]byte, error) {
+func (m *MI) Phone(content string) (*Response, error) {
 	data := Response{}
 	err := json.Unmarshal([]byte(content), &data)
 	if err != nil {
@@ -122,5 +134,45 @@ func (m *MI) Phone(content string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return rsae.NewAES().Decrypt(ciphertext, key, iv)
+
+	body, err := rsae.NewAES().Decrypt(ciphertext, key, iv)
+	if err != nil {
+		return nil, err
+	}
+	result := Response{}
+	err = json.Unmarshal(body, &result)
+	return &result, err
+}
+
+// QR qrcode
+func (m *MI) QR(content string) (*Response, error) {
+	args := &Request{
+		AppID:      AppID,
+		Method:     "alipay.open.app.qrcode.create",
+		Format:     "JSON",
+		Charset:    "utf-8",
+		SignType:   "RSA2",
+		TimeStamp:  tempo.NewNow().String(),
+		Version:    "1.0",
+		BizContent: content,
+	}
+	tmp, err := query.Values(args)
+	if err != nil {
+		return nil, err
+	}
+	sign, err := NewToken().Sign(&tmp, PrivatePath)
+	if err != nil {
+		return nil, err
+	}
+	url := fmt.Sprintf("https://openapi.alipay.com/gateway.do?%s", sign)
+	body, err := fetch.Cmd(fetch.Request{
+		Method: "GET",
+		URL:    url,
+	})
+	if err != nil {
+		return nil, err
+	}
+	result := Result{}
+	err = json.Unmarshal(body, &result)
+	return &result.AlipayOpenAppQrcodeCreateResponse, err
 }

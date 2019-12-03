@@ -21,7 +21,7 @@ func NewToken() *Token {
 }
 
 // Access access token
-func (t *Token) Access(code string) (*Oauth, error) {
+func (t *Token) Access(code string) (*Response, error) {
 	args := &Request{
 		AppID:     AppID,
 		Method:    "alipay.system.oauth.token",
