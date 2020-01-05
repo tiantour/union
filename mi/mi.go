@@ -95,19 +95,15 @@ func NewMI() *MI {
 // User user
 func (m *MI) User(code, content string) (*User, error) {
 	response, err := NewToken().Access(code)
-	fmt.Println(1, response, err)
 	if err != nil {
 		return nil, err
 	}
 	user := User{}
 	err = json.Unmarshal([]byte(content), &user)
-	fmt.Println(2, user, err)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(3)
 	user.UserID = response.UserID
-	fmt.Println(4)
 	return &user, err
 }
 
