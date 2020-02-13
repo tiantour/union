@@ -2,6 +2,7 @@ package mi
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 
@@ -51,7 +52,14 @@ func (t *Token) Access(code string) (*Response, error) {
 	}
 	result := Result{}
 	err = json.Unmarshal(body, &result)
-	return &result.AlipaySystemOauthTokenResponse, err
+	if err != nil {
+		return nil, err
+	}
+	response := result.AlipaySystemOauthTokenResponse
+	if response.Code != "10000" {
+		return nil, errors.New(response.Msg)
+	}
+	return response, nil
 }
 
 // Sign trade sign

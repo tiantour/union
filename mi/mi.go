@@ -2,6 +2,7 @@ package mi
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/google/go-querystring/query"
@@ -74,10 +75,10 @@ type (
 	}
 	// Result result
 	Result struct {
-		AlipaySystemOauthTokenResponse    Response `json:"alipay_system_oauth_token_response,omitempty"`     // 内容
-		AlipayUserInfoShareResponse       Response `json:"alipay_user_info_share_response,omitempty"`        // 内容
-		AlipayOpenAppQrcodeCreateResponse Response `json:"alipay_open_app_qrcode_create_response,omitempty"` // 内容
-		Sign                              string   `json:"sign,omitempty"`                                   // 签名
+		AlipaySystemOauthTokenResponse    *Response `json:"alipay_system_oauth_token_response,omitempty"`     // 内容
+		AlipayUserInfoShareResponse       *Response `json:"alipay_user_info_share_response,omitempty"`        // 内容
+		AlipayOpenAppQrcodeCreateResponse *Response `json:"alipay_open_app_qrcode_create_response,omitempty"` // 内容
+		Sign                              string    `json:"sign,omitempty"`                                   // 签名
 	}
 	// QR qr
 	QR struct {
@@ -119,7 +120,7 @@ func (m *MI) Phone(content string) (*Response, error) {
 		return nil, err
 	}
 
-	origdata := fmt.Sprintf("\"" + data.Response + "\"")
+	origdata := fmt.Sprintf(`"%s"`, data.Response)
 	ok, err := rsae.NewRSA().Verify(origdata, data.Sign, publicKey)
 	if !ok {
 		return nil, err
@@ -174,5 +175,12 @@ func (m *MI) QR(content string) (*Response, error) {
 	}
 	result := Result{}
 	err = json.Unmarshal(body, &result)
-	return &result.AlipayOpenAppQrcodeCreateResponse, err
+	if err != nil {
+		return nil, err
+	}
+	response := result.AlipayOpenAppQrcodeCreateResponse
+	if response.Code != "10000" {
+		return nil, errors.New(response.Msg)
+	}
+	return response, nil
 }
