@@ -57,7 +57,7 @@ func (t *Token) Access(code string) (*Response, error) {
 		return nil, err
 	}
 	response := result.AlipaySystemOauthTokenResponse
-	if response.Code != "10000" {
+	if response.Code != "" {
 		return nil, errors.New(response.Msg)
 	}
 	return response, nil

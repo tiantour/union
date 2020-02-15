@@ -143,6 +143,12 @@ func (m *MI) Phone(content string) (*Response, error) {
 	}
 	result := Response{}
 	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, err
+	}
+	if result.Code != "10000" {
+		return nil, errors.New(result.Msg)
+	}
 	return &result, err
 }
 
