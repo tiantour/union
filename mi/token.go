@@ -47,7 +47,6 @@ func (t *Token) Access(code string) (*Response, error) {
 		Method: "GET",
 		URL:    url,
 	})
-	fmt.Println("x", string(body))
 	if err != nil {
 		return nil, err
 	}

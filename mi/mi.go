@@ -137,7 +137,6 @@ func (m *MI) Phone(content string) (*Response, error) {
 	}
 
 	body, err := rsae.NewAES().Decrypt(ciphertext, key, iv)
-	fmt.Println("y", string(body))
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +148,7 @@ func (m *MI) Phone(content string) (*Response, error) {
 	if result.Code != "10000" {
 		return nil, errors.New(result.Msg)
 	}
-	return &result, err
+	return &result, nil
 }
 
 // QR qrcode
