@@ -166,7 +166,7 @@ func (m *MI) QR(content string) (*Response, error) {
 		return nil, err
 	}
 	url := fmt.Sprintf("https://openapi.alipay.com/gateway.do?%s", sign)
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
 		URL:    url,
 	})

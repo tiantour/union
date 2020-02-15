@@ -65,7 +65,7 @@ func (w *Weibo) User(accessToken, uID string) (*Weibo, error) {
 		uID,
 	)
 	result := Weibo{}
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
 		URL:    url,
 	})

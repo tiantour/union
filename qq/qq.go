@@ -45,7 +45,7 @@ func (q *QQ) User(accessToken, openID string) (*QQ, error) {
 		AppID,
 		openID,
 	)
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
 		URL:    url,
 	})

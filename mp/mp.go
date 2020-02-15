@@ -176,7 +176,7 @@ func (m *MP) QR(args *QR) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	body, err = fetch.Cmd(fetch.Request{
+	body, err = fetch.Cmd(&fetch.Request{
 		Method: "POST",
 		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=%s", token),
 		Body:   body,
@@ -204,7 +204,7 @@ func (m *MP) Image(args *Image) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	body, err = fetch.Cmd(fetch.Request{
+	body, err = fetch.Cmd(&fetch.Request{
 		Method: "POST",
 		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/img_sec_check?access_token=%s", token),
 		Body:   body,
@@ -230,7 +230,7 @@ func (m *MP) Message(args *Message) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	body, err = fetch.Cmd(fetch.Request{
+	body, err = fetch.Cmd(&fetch.Request{
 		Method: "POST",
 		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/msg_sec_check?access_token=%s", token),
 		Body:   body,

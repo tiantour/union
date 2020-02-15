@@ -47,7 +47,7 @@ func (t *Token) Access() (string, error) {
 // do do
 func (t *Token) do(url string) (*Token, error) {
 	result := Token{}
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
 		URL:    url,
 	})

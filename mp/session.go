@@ -36,7 +36,7 @@ func (s *Session) Get(code string) (*Session, error) {
 // do
 func (s *Session) do(url string) (*Session, error) {
 	result := Session{}
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := fetch.Cmd(&fetch.Request{
 		URL:    url,
 		Method: "GET",
 	})
