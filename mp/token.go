@@ -26,22 +26,22 @@ func NewToken() *Token {
 
 // Access access token
 func (t *Token) Access() (string, error) {
-	key := fmt.Sprintf("string:data:bind:access:token:%s", AppID)
 	var token string
+	key := fmt.Sprintf("string:data:bind:access:token:%s", AppID)
 	err := cache.NewString().GET(&token, key)
-	if err != nil || token == "" {
-		url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
-			AppID,
-			AppSecret,
-		)
-		result, err := t.do(url)
-		if err != nil {
-			return "", err
-		}
-		_ = cache.NewString().SET(nil, key, result.AccessToken, "EX", 7200)
-		return result.AccessToken, nil
+	if token != "" {
+		return token, err
 	}
-	return token, nil
+
+	result, err := t.do(fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
+		AppID,
+		AppSecret,
+	))
+	if err != nil {
+		return "", err
+	}
+	_ = cache.NewString().SET(nil, key, result.AccessToken, "EX", result.ExpiresIn)
+	return result.AccessToken, nil
 }
 
 // do do
@@ -54,6 +54,7 @@ func (t *Token) do(url string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err

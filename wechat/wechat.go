@@ -43,13 +43,12 @@ func (w *Wechat) User(code string) (*Wechat, error) {
 	if err != nil {
 		return nil, err
 	}
-	url := fmt.Sprintf("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s",
-		token.AccessToken,
-		token.OpenID,
-	)
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
-		URL:    url,
+		URL: fmt.Sprintf("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s",
+			token.AccessToken,
+			token.OpenID,
+		),
 	})
 	if err != nil {
 		return nil, err

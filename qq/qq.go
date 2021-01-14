@@ -40,14 +40,13 @@ func NewQQ() *QQ {
 // User user
 func (q *QQ) User(accessToken, openID string) (*QQ, error) {
 	result := QQ{}
-	url := fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%s?&oauth_consumer_key=%s&openid=%s",
-		accessToken,
-		AppID,
-		openID,
-	)
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
-		URL:    url,
+		URL: fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%s?&oauth_consumer_key=%s&openid=%s",
+			accessToken,
+			AppID,
+			openID,
+		),
 	})
 	if err != nil {
 		return nil, err

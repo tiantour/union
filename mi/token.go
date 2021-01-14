@@ -42,10 +42,11 @@ func (t *Token) Access(code string) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	url := fmt.Sprintf("https://openapi.alipay.com/gateway.do?%s", sign)
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
-		URL:    url,
+		URL: fmt.Sprintf("https://openapi.alipay.com/gateway.do?%s",
+			sign,
+		),
 	})
 	if err != nil {
 		return nil, err
