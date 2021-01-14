@@ -1,4 +1,4 @@
-package umspay
+package ums
 
 var (
 	// AppID appid

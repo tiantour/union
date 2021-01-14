@@ -1,4 +1,4 @@
-package umspay
+package ums
 
 import (
 	"encoding/hex"
@@ -55,7 +55,6 @@ func (t *Token) do(args *Request) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(string(body), err)
 
 	header := http.Header{}
 	header.Add("Accept", "application/json")
