@@ -1,19 +1,39 @@
 # union
-union login for wechat,weibo,qq with go
+union login component developed by go. support Alipay, WeChat, QQ, Weibo, UmsPay, Mini Program, Wxwork
 
-###　weibo
-
+### alipay
 ```
 package main
 
 import (
 	"fmt"
 
-	"github.com/tiantour/union/weibo"
+	"github.com/tiantour/union/mi"
 )
 
 func main() {
-	user, err := weibo.NewWeibo().User("your AccessToken", "your UID")
+    mi.AppID = "your AppID"
+    mi.PrivatePath = "your PrivateKey path"
+    mi.PublicPath = "your PublicKey path"
+	user, err := mi.NewMI().User("your code", "your content")
+	fmt.Println(user, err)
+}
+```
+
+### wechat
+```
+package main
+
+import (
+	"fmt"
+
+	"github.com/tiantour/union/wechat"
+)
+
+func main() {
+    wechat.AppID = "your AppID"
+    wechat.AppSecret = "your AppSecret"
+	user, err := wechat.NewWechat().User("your code")
 	fmt.Println(user, err)
 }
 ```
@@ -30,15 +50,13 @@ import (
 )
 
 func main() {
+    qq.AppID = "your AppID"
 	user, err := qq.NewQQ().User("your AccessToken", "your OpenID")
 	fmt.Println(user, err)
 }
 ```
 
-### wechat
-
-
-user 
+### weibo
 
 ```
 package main
@@ -46,24 +64,17 @@ package main
 import (
 	"fmt"
 
-	"github.com/tiantour/union/wechat"
+	"github.com/tiantour/union/weibo"
 )
 
 func main() {
-	// access token
-	token, err := wechat.NewToken().Access("your code")
-	if err != nil {
-		fmt.Println(err)
-	}
-	// user info
-	user, err := wechat.NewWechat().User(token.AccessToken, token.OpenID)
+    weibo.AppID = "your AppID"
+	user, err := weibo.NewWeibo().User("your accessToken", "your UID")
 	fmt.Println(user, err)
 }
 ```
 
-
-share 
-
+### umsPay
 
 ```
 package main
@@ -71,30 +82,56 @@ package main
 import (
 	"fmt"
 
-	"github.com/tiantour/union/wechat"
+	"github.com/tiantour/union/ums"
 )
 
 func main() {
-	url := "your url"
-	share, err := wechat.NewShare().Do(url)
-	fmt.Println(share, err)
+    ums.AppID = "your AppID"
+    ums.AppKey = "your AppKey"
+	user, err := ums.NewToken().Access()
+	fmt.Println(user, err)
 }
 ```
 
-message
-
+### mini program
 ```
 package main
 
 import (
 	"fmt"
 
-	"github.com/tiantour/union/wechat"
+	"github.com/tiantour/union/mp"
 )
 
 func main() {
-	data := []byte{}
-	message, err := wechat.NewMessage().Do(data)
-	fmt.Println(message, err)
+    mp.AppID = "your AppID"
+    mp.AppSecret = "your AppSecret"
+
+    // new 
+	data, err := mp.NewSession().Get("your code")
+	fmt.Println(data, err)
+
+    // old
+    data, err := mp.NewMP().User(encryptedData, iv)
+	fmt.Println(data, err)
+
+}
+```
+
+### wxwork
+```
+package main
+
+import (
+	"fmt"
+
+	"github.com/tiantour/union/wxwork"
+)
+
+func main() {
+    wxwork.CorpID = "your CorpID"
+    wxwork.CorpSecret = "your CorpSecret" 
+	user, err := mp.NewWxwork().User(code)
+	fmt.Println(user, err)
 }
 ```
