@@ -6,14 +6,6 @@ import (
 	"github.com/dgraph-io/ristretto"
 )
 
-const (
-	_HASH   = "hash"
-	_LIST   = "list"
-	_STRING = "string"
-	_SET    = "set"
-	_ZSET   = "zset"
-)
-
 var cache *ristretto.Cache
 
 func init() {
