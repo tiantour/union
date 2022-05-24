@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
-	"github.com/tiantour/cache"
 	"github.com/tiantour/fetch"
+	"github.com/tiantour/union/x/cache"
 )
 
 // Token token
@@ -26,11 +27,9 @@ func NewToken() *Token {
 
 // Access access token
 func (t *Token) Access() (string, error) {
-	var token string
-	key := fmt.Sprintf("string:data:bind:access:token:%s", AppID)
-	err := cache.NewString().GET(&token, key)
-	if token != "" {
-		return token, err
+	token, ok := cache.NewString().Get(AppID)
+	if ok && token != "" {
+		return token.(string), nil
 	}
 
 	result, err := t.do(fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
@@ -40,7 +39,8 @@ func (t *Token) Access() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	_ = cache.NewString().SET(nil, key, result.AccessToken, "EX", result.ExpiresIn)
+
+	_ = cache.NewString().Set(AppID, result.AccessToken, 1, 7200*time.Second)
 	return result.AccessToken, nil
 }
 

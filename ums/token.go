@@ -4,14 +4,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/tiantour/cache"
 	"github.com/tiantour/fetch"
 	"github.com/tiantour/imago"
 	"github.com/tiantour/rsae"
+	"github.com/tiantour/union/x/cache"
 )
 
 // Token token
@@ -24,11 +23,9 @@ func NewToken() *Token {
 
 // Access access token
 func (t *Token) Access() (string, error) {
-	var token string
-	key := fmt.Sprintf("string:data:bind:access:token:%s", AppID)
-	err := cache.NewString().GET(&token, key)
-	if token != "" {
-		return token, err
+	token, ok := cache.NewString().Get(AppID)
+	if ok && token != "" {
+		return token.(string), nil
 	}
 
 	data := &Request{
@@ -45,7 +42,7 @@ func (t *Token) Access() (string, error) {
 		return "", err
 	}
 
-	_ = cache.NewString().SET(nil, key, result.AccessToken, "EX", result.ExpiresIn)
+	_ = cache.NewString().Set(AppID, result.AccessToken, 1, 7200*time.Second)
 	return result.AccessToken, nil
 }
 
