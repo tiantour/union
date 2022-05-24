@@ -2,7 +2,7 @@
 union login component developed by go. support Alipay, WeChat, QQ, Weibo, UmsPay, Mini Program, Wxwork
 
 ### alipay
-```
+```golang
 package main
 
 import (
@@ -21,7 +21,7 @@ func main() {
 ```
 
 ### wechat
-```
+```golang
 package main
 
 import (
@@ -40,7 +40,7 @@ func main() {
 
 ### qq
 
-```
+```golang
 package main
 
 import (
@@ -58,7 +58,7 @@ func main() {
 
 ### weibo
 
-```
+```golang
 package main
 
 import (
@@ -76,7 +76,7 @@ func main() {
 
 ### umsPay
 
-```
+```golang
 package main
 
 import (
@@ -94,7 +94,8 @@ func main() {
 ```
 
 ### mini program
-```
+
+```golang
 package main
 
 import (
@@ -119,7 +120,8 @@ func main() {
 ```
 
 ### wxwork
-```
+
+```golang
 package main
 
 import (
