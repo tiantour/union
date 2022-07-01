@@ -42,7 +42,7 @@ func (q *QQ) User(accessToken, openID string) (*QQ, error) {
 	result := QQ{}
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
-		URL: fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%s?&oauth_consumer_key=%s&openid=%s",
+		URL: fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%s&oauth_consumer_key=%s&openid=%s",
 			accessToken,
 			AppID,
 			openID,
