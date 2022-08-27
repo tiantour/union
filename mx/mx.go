@@ -39,6 +39,10 @@ type (
 	}
 )
 
+func NewMX() *MX {
+	return new(MX)
+}
+
 func (m *MX) User(openID string) (*User, error) {
 	token, err := NewToken().Access()
 	if err != nil {
