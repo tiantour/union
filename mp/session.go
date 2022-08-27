@@ -13,7 +13,7 @@ type Session struct {
 	OpenID     string `json:"openid"`      // openid
 	SessionKey string `json:"session_key"` // session
 	UnionID    string `json:"unionid"`     // unionid
-	Result
+	Error
 }
 
 // NewSession new session
@@ -23,27 +23,20 @@ func NewSession() *Session {
 
 // Get get
 func (s *Session) Get(code string) (*Session, error) {
-	return s.do(fmt.Sprintf("https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code",
-		AppID,
-		AppSecret,
-		code,
-	))
-}
-
-// do
-func (s *Session) do(url string) (*Session, error) {
-	result := Session{}
 	body, err := fetch.Cmd(&fetch.Request{
-		URL:    url,
 		Method: "GET",
+		URL:    fmt.Sprintf("https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code", AppID, AppSecret, code),
 	})
 	if err != nil {
 		return nil, err
 	}
+
+	result := Session{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	if result.ErrCode != 0 {
 		return nil, errors.New(result.ErrMsg)
 	}

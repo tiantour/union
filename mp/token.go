@@ -17,7 +17,7 @@ type Token struct {
 	RefreshToken string `json:"refresh_token"` // 用户刷新access_token
 	OpenID       string `json:"openid"`        // 用户唯一标识
 	Scope        string `json:"scope"`         // 用户授权的作用域，使用逗号（,）分隔
-	Result
+	Error
 }
 
 // NewToken new token
@@ -32,10 +32,7 @@ func (t *Token) Access() (string, error) {
 		return token.(string), nil
 	}
 
-	result, err := t.do(fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
-		AppID,
-		AppSecret,
-	))
+	result, err := t.Get()
 	if err != nil {
 		return "", err
 	}
@@ -44,21 +41,21 @@ func (t *Token) Access() (string, error) {
 	return result.AccessToken, nil
 }
 
-// do do
-func (t *Token) do(url string) (*Token, error) {
-	result := Token{}
+func (t *Token) Get() (*Token, error) {
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
-		URL:    url,
+		URL:    fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", AppID, AppSecret),
 	})
 	if err != nil {
 		return nil, err
 	}
 
+	result := Token{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	if result.ErrCode != 0 {
 		return nil, errors.New(result.ErrMsg)
 	}

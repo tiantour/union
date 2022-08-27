@@ -2,20 +2,23 @@ package qq
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/tiantour/fetch"
 )
 
 var (
-	// AppID appID
-	AppID string
+	AppID string // AppID appID
 )
 
 type (
 	// QQ qq
-	QQ struct {
-		Ret             string `json:"ret"`                // 返回码
+	QQ struct{}
+
+	// User user
+	User struct {
+		Ret             int    `json:"ret"`                // 返回码
 		Msg             string `json:"msg"`                // 如果ret<0，会有相应的错误信息提示，返回数据全部用UTF-8编码。
 		NickName        string `json:"nickname"`           // 用户在QQ空间的昵称。
 		FigureURL       string `json:"figureurl"`          // 大小为30×30像素的QQ空间头像URL。
@@ -38,22 +41,23 @@ func NewQQ() *QQ {
 }
 
 // User user
-func (q *QQ) User(accessToken, openID string) (*QQ, error) {
-	result := QQ{}
+func (q *QQ) User(accessToken, openID string) (*User, error) {
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
-		URL: fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%s&oauth_consumer_key=%s&openid=%s",
-			accessToken,
-			AppID,
-			openID,
-		),
+		URL:    fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%s&oauth_consumer_key=%s&openid=%s", accessToken, AppID, openID),
 	})
 	if err != nil {
 		return nil, err
 	}
+
+	result := User{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err
+	}
+
+	if result.Ret != 0 {
+		return nil, errors.New(result.Msg)
 	}
 	return &result, err
 }

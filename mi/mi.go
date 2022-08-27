@@ -5,27 +5,24 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/google/go-querystring/query"
-	"github.com/tiantour/fetch"
 	"github.com/tiantour/imago"
 	"github.com/tiantour/rsae"
-	"github.com/tiantour/tempo"
 )
 
 var (
-	// AppID appid
-	AppID string
-	// AesKey aes key
-	AesKey string
-	// PrivatePath private path
-	PrivatePath string
-	// PublicPath public path
-	PublicPath string
+	AppID string // AppID appid
+
+	AesKey string // AesKey aes key
+
+	PrivatePath string // PrivatePath private path
+
+	PublicPath string // PublicPath public path
 )
 
 type (
 	// MI mi
 	MI struct{}
+
 	// User user
 	User struct {
 		UserID      string `json:"user_id,omitempty"`     // 是 用户ID
@@ -36,6 +33,7 @@ type (
 		Province    string `json:"province,omitempty"`    // 是 省份
 		City        string `json:"city,omitempty"`        // 是 城市
 	}
+
 	// Request request
 	Request struct {
 		AppID        string `json:"app_id,omitempty" url:"app_id,omitempty"`                 // 是 应用ID
@@ -53,6 +51,7 @@ type (
 		RefreshToken string `json:"refresh_token,omitempty" url:"refresh_token,omitempty"`   // 否 刷新令牌
 		BizContent   string `json:"biz_content,omitempty" url:"biz_content,omitempty"`       // 请求参数的集合
 	}
+
 	// Response response
 	Response struct {
 		Code    string `json:"code,omitempty"`     // 是 网关返回码
@@ -62,6 +61,7 @@ type (
 		Sign    string `json:"sign,omitempty"`     // 是 签名
 		*Next
 	}
+
 	// Next next
 	Next struct {
 		UserID       string `json:"user_id,omitempty"`       // 是 支付宝用户的唯一userId
@@ -73,18 +73,13 @@ type (
 		Response     string `json:"response,omitempty"`      // 否 内容
 		QrCodeURL    string `json:"qr_code_url,omitempty"`   // 二维码图片链接地址
 	}
+
 	// Result result
 	Result struct {
 		AlipaySystemOauthTokenResponse    *Response `json:"alipay_system_oauth_token_response,omitempty"`     // 内容
 		AlipayUserInfoShareResponse       *Response `json:"alipay_user_info_share_response,omitempty"`        // 内容
 		AlipayOpenAppQrcodeCreateResponse *Response `json:"alipay_open_app_qrcode_create_response,omitempty"` // 内容
 		Sign                              string    `json:"sign,omitempty"`                                   // 签名
-	}
-	// QR qr
-	QR struct {
-		URLParam   string `json:"url_param,omitempty"`   // 小程序中能访问到的页面路径。
-		QueryParam string `json:"query_param,omitempty"` // 小程序的启动参数，打开小程序的query，在小程序onLaunch的方法中获取。
-		Describe   int    `json:"describe,omitempty"`    // 对应的二维码描述。
 	}
 )
 
@@ -99,12 +94,14 @@ func (m *MI) User(code, content string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	user := User{}
 	err = json.Unmarshal([]byte(content), &user)
 	if err != nil {
 		return nil, err
 	}
 	user.UserID = response.UserID
+
 	return &user, err
 }
 
@@ -115,6 +112,7 @@ func (m *MI) Phone(content string) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	publicKey, err := imago.NewFile().Read(PublicPath)
 	if err != nil {
 		return nil, err
@@ -131,6 +129,7 @@ func (m *MI) Phone(content string) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	key, err := rsae.NewBase64().Decode(AesKey)
 	if err != nil {
 		return nil, err
@@ -140,54 +139,15 @@ func (m *MI) Phone(content string) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	result := Response{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	if result.Code != "10000" {
 		return nil, errors.New(result.Msg)
 	}
 	return &result, nil
-}
-
-// QR qrcode
-func (m *MI) QR(content string) (*Response, error) {
-	args := &Request{
-		AppID:      AppID,
-		Method:     "alipay.open.app.qrcode.create",
-		Format:     "JSON",
-		Charset:    "utf-8",
-		SignType:   "RSA2",
-		TimeStamp:  tempo.NewNow().String(),
-		Version:    "1.0",
-		BizContent: content,
-	}
-	tmp, err := query.Values(args)
-	if err != nil {
-		return nil, err
-	}
-	sign, err := NewToken().Sign(&tmp, PrivatePath)
-	if err != nil {
-		return nil, err
-	}
-	body, err := fetch.Cmd(&fetch.Request{
-		Method: "GET",
-		URL: fmt.Sprintf("https://openapi.alipay.com/gateway.do?%s",
-			sign,
-		),
-	})
-	if err != nil {
-		return nil, err
-	}
-	result := Result{}
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return nil, err
-	}
-	response := result.AlipayOpenAppQrcodeCreateResponse
-	if response.Code != "10000" {
-		return nil, errors.New(response.Msg)
-	}
-	return response, nil
 }

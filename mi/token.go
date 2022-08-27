@@ -34,14 +34,17 @@ func (t *Token) Access(code string) (*Response, error) {
 		GrantType: "authorization_code",
 		Code:      code,
 	}
+
 	tmp, err := query.Values(args)
 	if err != nil {
 		return nil, err
 	}
+
 	sign, err := t.Sign(&tmp, PrivatePath)
 	if err != nil {
 		return nil, err
 	}
+
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
 		URL: fmt.Sprintf("https://openapi.alipay.com/gateway.do?%s",
@@ -51,11 +54,13 @@ func (t *Token) Access(code string) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	result := Result{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	response := result.AlipaySystemOauthTokenResponse
 	if response.Code != "" {
 		return nil, errors.New(response.Msg)
@@ -69,15 +74,18 @@ func (t *Token) Sign(args *url.Values, privatePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	privateKey, err := imago.NewFile().Read(privatePath)
 	if err != nil {
 		return "", err
 	}
+
 	sign, err := rsae.NewRSA().Sign(query, privateKey)
 	if err != nil {
 		return "", err
 	}
 	args.Add("sign", sign)
+
 	return args.Encode(), nil
 }
 
@@ -86,14 +94,17 @@ func (t *Token) Verify(args url.Values, publicPath string) error {
 	sign := args.Get("sign")
 	args.Del("sign")
 	args.Del("sign_type")
+
 	query, err := url.QueryUnescape(args.Encode())
 	if err != nil {
 		return err
 	}
+
 	publicKey, err := imago.NewFile().Read(publicPath)
 	if err != nil {
 		return err
 	}
+
 	ok, err := rsae.NewRSA().Verify(query, sign, publicKey)
 	if !ok {
 		return err

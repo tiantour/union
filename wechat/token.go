@@ -23,8 +23,7 @@ type Token struct {
 	RefreshToken string `json:"refresh_token"` // 用户刷新access_token
 	OpenID       string `json:"openid"`        // 用户唯一标识
 	Scope        string `json:"scope"`         // 用户授权的作用域，使用逗号（,）分隔
-	ErrCode      int    `json:"errcode"`       // 错误代码
-	ErrMsg       string `json:"errmsg"`        // 错误消息
+	Error
 }
 
 // NewToken new token
@@ -34,43 +33,20 @@ func NewToken() *Token {
 
 // Access token
 func (t *Token) Access(code string) (*Token, error) {
-	return t.do(fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code",
-		AppID,
-		AppSecret,
-		code,
-	))
-}
-
-// Refresh token
-func (t *Token) Refresh(refreshToken string) (*Token, error) {
-	return t.do(fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=%s&grant_type=refresh_token&refresh_token=%s",
-		AppID,
-		refreshToken,
-	))
-}
-
-// Verify token
-func (t *Token) Verify(accessToken, openID string) (*Token, error) {
-	return t.do(fmt.Sprintf("https://api.weixin.qq.com/sns/auth?access_token=%s&openid=%s",
-		accessToken,
-		openID,
-	))
-}
-
-// do do
-func (t *Token) do(url string) (*Token, error) {
-	result := Token{}
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
-		URL:    url,
+		URL:    fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code", AppID, AppSecret, code),
 	})
 	if err != nil {
 		return nil, err
 	}
+
+	result := Token{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	if result.ErrCode != 0 {
 		return nil, errors.New(result.ErrMsg)
 	}

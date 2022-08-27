@@ -19,8 +19,7 @@ type Token struct {
 	RefreshToken string `json:"refresh_token"` // 用户刷新access_token
 	OpenID       string `json:"openid"`        // 用户唯一标识
 	Scope        string `json:"scope"`         // 用户授权的作用域，使用逗号（,）分隔
-	ErrCode      int    `json:"errcode"`       // 错误代码
-	ErrMsg       string `json:"errmsg"`        // 错误消息
+	Error
 }
 
 // NewToken new token
@@ -30,26 +29,20 @@ func NewToken() *Token {
 
 // Access token
 func (t *Token) Access() (*Token, error) {
-	return t.do(fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s",
-		CorpID,
-		CorpSecret,
-	))
-}
-
-// do do
-func (t *Token) do(url string) (*Token, error) {
-	result := Token{}
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
-		URL:    url,
+		URL:    fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s", CorpID, CorpSecret),
 	})
 	if err != nil {
 		return nil, err
 	}
+
+	result := Token{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	if result.ErrCode != 0 {
 		return nil, errors.New(result.ErrMsg)
 	}

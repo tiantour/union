@@ -8,13 +8,15 @@ import (
 )
 
 var (
-	// AppID appID
-	AppID string
+	AppID string // AppID appID
 )
 
 type (
 	// Weibo weibo
-	Weibo struct {
+	Weibo struct{}
+
+	// User user
+	User struct {
 		ID               int64       `json:"id"`                 // 用户UID
 		IDStr            string      `json:"idstr"`              // 字符串型的用户UID
 		ScreenName       string      `json:"screen_name"`        //用户昵称
@@ -59,7 +61,6 @@ func NewWeibo() *Weibo {
 
 // User user
 func (w *Weibo) User(accessToken, uID string) (*Weibo, error) {
-	result := Weibo{}
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
 		URL: fmt.Sprintf("https://api.weibo.com/2/users/show.json?source=%s&access_token=%s&uid=%s",
@@ -71,6 +72,8 @@ func (w *Weibo) User(accessToken, uID string) (*Weibo, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	result := Weibo{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err

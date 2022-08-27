@@ -37,20 +37,9 @@ func (t *Token) Access() (string, error) {
 	sign := rsae.NewSHA().SHA256(AppID + data.Timestamp + data.Nonce + AppKey)
 	data.Signature = string(hex.EncodeToString(sign))
 
-	result, err := t.do(data)
+	body, err := json.Marshal(data)
 	if err != nil {
 		return "", err
-	}
-
-	_ = cache.NewString().Set(AppID, result.AccessToken, 1, 7200*time.Second)
-	return result.AccessToken, nil
-}
-
-// do do
-func (t *Token) do(args *Request) (*Response, error) {
-	body, err := json.Marshal(args)
-	if err != nil {
-		return nil, err
 	}
 
 	header := http.Header{}
@@ -63,16 +52,19 @@ func (t *Token) do(args *Request) (*Response, error) {
 		Header: header,
 	})
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	result := Response{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
+
 	if result.ErrCode != "0000" {
-		return nil, errors.New(result.ErrInfo)
+		return "", errors.New(result.ErrInfo)
 	}
-	return &result, err
+
+	_ = cache.NewString().Set(AppID, result.AccessToken, 1, 7200*time.Second)
+	return result.AccessToken, nil
 }

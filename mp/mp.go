@@ -3,26 +3,27 @@ package mp
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 
-	"github.com/tiantour/fetch"
 	"github.com/tiantour/rsae"
 )
 
 var (
-	// AppID appid
-	AppID string
+	AppID string // AppID appid
 
-	// AppSecret app secret
-	AppSecret string
+	AppSecret string // AppSecret app secret
 
-	// SessionKey sessionKey
-	SessionKey string
+	SessionKey string // SessionKey sessionKey
 )
 
 type (
 	// MP mp
 	MP struct{}
+
+	// Error Error
+	Error struct {
+		ErrCode int    `json:"errcode"` // 错误代码
+		ErrMsg  string `json:"errmsg"`  // 错误消息
+	}
 
 	// User user
 	User struct {
@@ -45,35 +46,10 @@ type (
 		CountryCode     string `json:"countryCode"`     // 区号
 	}
 
-	// QR qr
-	QR struct {
-		Scene     string                 `json:"scene"`      // 场景
-		Page      string                 `json:"page"`       // 页面
-		Width     int                    `json:"width"`      // 宽度
-		AutoColor bool                   `json:"auto_color"` // 默认颜色
-		LineColor map[string]interface{} `json:"line_color"` // 线条颜色
-	}
-
-	// Image image
-	Image struct {
-		Media []byte `json:"media"` // 媒体
-	}
-
-	// Message message
-	Message struct {
-		Content string `json:"content"` // 内容
-	}
-
 	// Watermark watermark
 	Watermark struct {
 		AppID     string `json:"appid,omitempty"`
 		TimeStamp int    `json:"timestamp,omitempty"`
-	}
-
-	// Result result
-	Result struct {
-		ErrCode int    `json:"errcode"` // 错误代码
-		ErrMsg  string `json:"errmsg"`  // 错误消息
 	}
 
 	// WU watermark user
@@ -100,41 +76,32 @@ func (m *MP) User(encryptedData, iv string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	sessionByte, err := rsae.NewBase64().Decode(SessionKey)
 	if err != nil {
 		return nil, err
 	}
+
 	ivByte, err := rsae.NewBase64().Decode(iv)
 	if err != nil {
 		return nil, err
 	}
+
 	body, err := rsae.NewAES().Decrypt(encryptedByte, sessionByte, ivByte)
 	if err != nil {
 		return nil, err
 	}
+
 	data := WU{}
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		return nil, err
 	}
+
 	if data.Watermark.AppID != AppID {
 		return nil, errors.New("appid not match")
 	}
 	return &data.User, nil
-}
-
-// Verify verify
-func (m *MP) Verify(rawData *MP, signature string) bool {
-	body, err := json.Marshal(rawData)
-	if err != nil {
-		return false
-	}
-	tmp := fmt.Sprintf("%s%s", string(body), SessionKey)
-	data := rsae.NewSHA().SHA1(tmp)
-	if signature != string(data) {
-		return false
-	}
-	return true
 }
 
 // Phone phone
@@ -143,105 +110,30 @@ func (m *MP) Phone(encryptedData, iv string) (*Phone, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	sessionByte, err := rsae.NewBase64().Decode(SessionKey)
 	if err != nil {
 		return nil, err
 	}
+
 	ivByte, err := rsae.NewBase64().Decode(iv)
 	if err != nil {
 		return nil, err
 	}
+
 	body, err := rsae.NewAES().Decrypt(encryptedByte, sessionByte, ivByte)
 	if err != nil {
 		return nil, err
 	}
+
 	data := WP{}
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		return nil, err
 	}
+
 	if data.Watermark.AppID != AppID {
 		return nil, errors.New("appid not match")
 	}
 	return &data.Phone, nil
-}
-
-// QR qr
-func (m *MP) QR(args *QR) ([]byte, error) {
-	body, err := json.Marshal(args)
-	if err != nil {
-		return nil, err
-	}
-	token, err := NewToken().Access()
-	if err != nil {
-		return nil, err
-	}
-	body, err = fetch.Cmd(&fetch.Request{
-		Method: "POST",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=%s", token),
-		Body:   body,
-	})
-	if len(body) < 256 {
-		data := Result{}
-		err = json.Unmarshal(body, &data)
-		if err != nil {
-			return body, err
-		}
-		if data.ErrCode != 0 {
-			return nil, errors.New(data.ErrMsg)
-		}
-	}
-	return body, err
-}
-
-// Image image
-func (m *MP) Image(args *Image) ([]byte, error) {
-	body, err := json.Marshal(args)
-	if err != nil {
-		return nil, err
-	}
-	token, err := NewToken().Access()
-	if err != nil {
-		return nil, err
-	}
-	body, err = fetch.Cmd(&fetch.Request{
-		Method: "POST",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/img_sec_check?access_token=%s", token),
-		Body:   body,
-	})
-	data := Result{}
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		return nil, err
-	}
-	if data.ErrCode != 0 {
-		return nil, errors.New(data.ErrMsg)
-	}
-	return body, err
-}
-
-// Message message
-func (m *MP) Message(args *Message) ([]byte, error) {
-	body, err := json.Marshal(args)
-	if err != nil {
-		return nil, err
-	}
-	token, err := NewToken().Access()
-	if err != nil {
-		return nil, err
-	}
-	body, err = fetch.Cmd(&fetch.Request{
-		Method: "POST",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/msg_sec_check?access_token=%s", token),
-		Body:   body,
-	})
-	data := Result{}
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		return nil, err
-	}
-	if data.ErrCode != 0 {
-		return nil, errors.New(data.ErrMsg)
-	}
-	return body, err
 }

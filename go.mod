@@ -1,6 +1,6 @@
 module github.com/tiantour/union
 
-go 1.18
+go 1.19
 
 require (
 	github.com/dgraph-io/ristretto v0.1.0
@@ -18,5 +18,4 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
 	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1 // indirect
-	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
