@@ -30,6 +30,10 @@ type (
 	}
 )
 
+func NewTicket() *Ticket {
+	return new(Ticket)
+}
+
 func (t *Ticket) Get(args *Ticket) (*Ticket, error) {
 	token, err := NewToken().Access()
 	if err != nil {
