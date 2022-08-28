@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/tiantour/fetch"
-	"github.com/tiantour/imago"
 )
 
 // https://developers.weixin.qq.com/doc/offiaccount/Account_Management/Generating_a_Parametric_QR_Code.html
@@ -31,26 +30,21 @@ type (
 	}
 )
 
-func (t *Ticket) Get(token string) (*Ticket, error) {
-	data := &Ticket{
-		ActionName:    "QR_SCENE",
-		ExpireSeconds: 648000,
-		ActionInfo: &Action{
-			Scene: &Scene{
-				SceneID: imago.NewRandom().Number(16),
-			},
-		},
-	}
-
-	body, err := json.Marshal(data)
+func (t *Ticket) Get(args *Ticket) (*Ticket, error) {
+	token, err := NewToken().Access()
 	if err != nil {
 		return nil, err
 	}
 
-	body, err = fetch.Cmd(&fetch.Request{
+	data, err := json.Marshal(args)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := fetch.Cmd(&fetch.Request{
 		Method: "POST",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=%s", token),
-		Body:   body,
+		URL:    fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=%s", token.AccessToken),
+		Body:   data,
 	})
 	if err != nil {
 		return nil, err
