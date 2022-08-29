@@ -48,7 +48,7 @@ func (w *Wxwork) User(code string) (*User, error) {
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
 		URL: fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=%s&code=%s",
-			token.AccessToken,
+			token,
 			code,
 		),
 	})

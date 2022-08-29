@@ -28,6 +28,16 @@ func (t *Token) Access() (string, error) {
 		return token.(string), nil
 	}
 
+	result, err := t.Get()
+	if err != nil {
+		return "", err
+	}
+
+	_ = cache.NewString().Set(AppID, result.AccessToken, 1, 7200*time.Second)
+	return result.AccessToken, nil
+}
+
+func (t *Token) Get() (*Response, error) {
 	data := &Request{
 		AppID:      AppID,
 		Timestamp:  time.Now().Format("20060102150405"),
@@ -39,7 +49,7 @@ func (t *Token) Access() (string, error) {
 
 	body, err := json.Marshal(data)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	header := http.Header{}
@@ -52,19 +62,17 @@ func (t *Token) Access() (string, error) {
 		Header: header,
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	result := Response{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if result.ErrCode != "0000" {
-		return "", errors.New(result.ErrInfo)
+		return nil, errors.New(result.ErrInfo)
 	}
-
-	_ = cache.NewString().Set(AppID, result.AccessToken, 1, 7200*time.Second)
-	return result.AccessToken, nil
+	return &result, nil
 }

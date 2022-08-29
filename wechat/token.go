@@ -31,7 +31,6 @@ func NewToken() *Token {
 	return &Token{}
 }
 
-// Access token
 func (t *Token) Access(code string) (*Token, error) {
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",

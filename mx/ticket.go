@@ -47,7 +47,7 @@ func (t *Ticket) Get(args *Ticket) (*Ticket, error) {
 
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "POST",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=%s", token.AccessToken),
+		URL:    fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=%s", token),
 		Body:   data,
 	})
 	if err != nil {

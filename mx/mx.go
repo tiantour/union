@@ -52,7 +52,7 @@ func (m *MX) User(openID string) (*User, error) {
 
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN", token.AccessToken, openID),
+		URL:    fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN", token, openID),
 	})
 	if err != nil {
 		return nil, err

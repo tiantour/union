@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/tiantour/fetch"
+	"github.com/tiantour/union/x/cache"
 )
 
 type Token struct {
@@ -18,7 +20,23 @@ func NewToken() *Token {
 	return new(Token)
 }
 
-func (t *Token) Access() (*Token, error) {
+// Access access token
+func (t *Token) Access() (string, error) {
+	token, ok := cache.NewString().Get(AppID)
+	if ok && token != "" {
+		return token.(string), nil
+	}
+
+	result, err := t.Get()
+	if err != nil {
+		return "", err
+	}
+
+	_ = cache.NewString().Set(AppID, result.AccessToken, 1, 7200*time.Second)
+	return result.AccessToken, nil
+}
+
+func (t *Token) Get() (*Token, error) {
 	body, err := fetch.Cmd(&fetch.Request{
 		Method: "GET",
 		URL:    fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", AppID, AppSecret),
