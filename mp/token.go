@@ -10,6 +10,8 @@ import (
 	"github.com/tiantour/union/x/cache"
 )
 
+// https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-access-token/getAccessToken.html
+
 // Token token
 type Token struct {
 	AccessToken  string `json:"access_token"`  // 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
