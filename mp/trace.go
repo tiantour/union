@@ -13,26 +13,25 @@ type (
 	Trace struct{}
 
 	TraceRequest struct {
-		OpenID          string `json:"openid,omitempty"`            // 是 用户openid
-		SenderPhone     string `json:"sender_phone,omitempty"`      // 否 寄件人手机号
-		ReceiverPhone   string `json:"receiver_phone,omitempty"`    // 是 收件人手机号，部分运力需要用户手机号作为查单依据
-		DeliveryID      string `json:"delivery_id,omitempty"`       // 否	运力id（运单号所属运力公司id），该字段从 get_delivery_list 获取。
-		WaybillID       string `json:"waybill_id,omitempty"`        // 是 运单号
-		TransID         string `json:"trans_id,omitempty"`          // 是 微信支付id
-		OrderTetailTath string `json:"order_detail_path,omitempty"` // 否 点击落地页商品卡片跳转路径（建议为订单详情页path），不传默认跳转小程序首页。
-		GoodsInfo
+		OpenID          string     `json:"openid,omitempty"`            // 是 用户openid
+		SenderPhone     string     `json:"sender_phone,omitempty"`      // 否 寄件人手机号
+		ReceiverPhone   string     `json:"receiver_phone,omitempty"`    // 是 收件人手机号，部分运力需要用户手机号作为查单依据
+		DeliveryID      string     `json:"delivery_id,omitempty"`       // 否	运力id（运单号所属运力公司id），该字段从 get_delivery_list 获取。
+		WaybillID       string     `json:"waybill_id,omitempty"`        // 是 运单号
+		TransID         string     `json:"trans_id,omitempty"`          // 是 微信支付id
+		OrderTetailTath string     `json:"order_detail_path,omitempty"` // 否 点击落地页商品卡片跳转路径（建议为订单详情页path），不传默认跳转小程序首页。
+		GoodsInfo       DetailList `json:"goods_info,omitempty"`        // 是	商品信息
 	}
 
 	TraceResponse struct {
 		Error
-		WaybillToken string        `json:"waybill_token,omitempty"` // 运单token
 		WaybillInfo  *WaybillInfo  `json:"waybill_info,omitempty"`  // 运单信息
 		ShopInfo     *ShopInfo     `json:"shop_info,omitempty"`     // 店铺信息
 		DeliveryInfo *DeliveryInfo `json:"delivery_info,omitempty"` // 运力信息
 	}
 
-	GoodsInfo struct {
-		GoodsInfo *DetailList `json:"goods_info,omitempty"` // 是	商品信息
+	ShopInfo struct {
+		GoodsInfo DetailList `json:"goods_info,omitempty"` // 店铺信息
 	}
 
 	DetailList struct {
@@ -48,10 +47,6 @@ type (
 	WaybillInfo struct {
 		Status    int32  `json:"status,omitempty"`     // 是 运单状态，见运单状态
 		WaybillID string `json:"waybill_id,omitempty"` // 是 运单号
-	}
-
-	ShopInfo struct {
-		GoodsInfo *GoodsInfo `json:"goods_info,omitempty"` // 店铺信息
 	}
 
 	DeliveryInfo struct {
