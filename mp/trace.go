@@ -25,6 +25,7 @@ type (
 
 	TraceResponse struct {
 		Error
+		WaybillToken string        `json:"waybill_token,omitempty"` // 运单token
 		WaybillInfo  *WaybillInfo  `json:"waybill_info,omitempty"`  // 运单信息
 		ShopInfo     *ShopInfo     `json:"shop_info,omitempty"`     // 店铺信息
 		DeliveryInfo *DeliveryInfo `json:"delivery_info,omitempty"` // 运力信息
