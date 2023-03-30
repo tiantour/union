@@ -1,16 +1,15 @@
 package mi
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 
+	"github.com/duke-git/lancet/v2/datetime"
+	"github.com/duke-git/lancet/v2/netutil"
 	"github.com/google/go-querystring/query"
-	"github.com/tiantour/fetch"
-	"github.com/tiantour/imago"
 	"github.com/tiantour/rsae"
-	"github.com/tiantour/tempo"
 )
 
 // Token token
@@ -29,7 +28,7 @@ func (t *Token) Access(code string) (*Response, error) {
 		Format:    "JSON",
 		Charset:   "utf-8",
 		SignType:  "RSA2",
-		TimeStamp: tempo.NewNow().String(),
+		TimeStamp: datetime.GetNowDateTime(),
 		Version:   "1.0",
 		GrantType: "authorization_code",
 		Code:      code,
@@ -45,18 +44,17 @@ func (t *Token) Access(code string) (*Response, error) {
 		return nil, err
 	}
 
-	body, err := fetch.Cmd(&fetch.Request{
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL: fmt.Sprintf("https://openapi.alipay.com/gateway.do?%s", sign),
 		Method: "GET",
-		URL: fmt.Sprintf("https://openapi.alipay.com/gateway.do?%s",
-			sign,
-		),
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	result := Result{}
-	err = json.Unmarshal(body, &result)
+	err = client.DecodeResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +73,7 @@ func (t *Token) Sign(args *url.Values, privatePath string) (string, error) {
 		return "", err
 	}
 
-	privateKey, err := imago.NewFile().Read(privatePath)
+	privateKey, err := os.ReadFile(privatePath)
 	if err != nil {
 		return "", err
 	}
@@ -100,7 +98,7 @@ func (t *Token) Verify(args url.Values, publicPath string) error {
 		return err
 	}
 
-	publicKey, err := imago.NewFile().Read(publicPath)
+	publicKey, err := os.ReadFile(publicPath)
 	if err != nil {
 		return err
 	}

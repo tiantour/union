@@ -1,11 +1,10 @@
 package mx
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 
-	"github.com/tiantour/fetch"
+	"github.com/duke-git/lancet/v2/netutil"
 )
 
 // https://developers.weixin.qq.com/doc/offiaccount/User_Management/Get_users_basic_information_UnionID.html#UinonId
@@ -50,16 +49,17 @@ func (m *MX) User(openID string) (*User, error) {
 		return nil, err
 	}
 
-	body, err := fetch.Cmd(&fetch.Request{
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL: fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN", token, openID),
 		Method: "GET",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN", token, openID),
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	result := User{}
-	err = json.Unmarshal(body, &result)
+	err = client.DecodeResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}

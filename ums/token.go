@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/tiantour/fetch"
-	"github.com/tiantour/imago"
+	"github.com/duke-git/lancet/v2/netutil"
+	"github.com/duke-git/lancet/v2/random"
 	"github.com/tiantour/rsae"
 	"github.com/tiantour/union/x/cache"
 )
@@ -41,7 +41,7 @@ func (t *Token) Get() (*Response, error) {
 	data := &Request{
 		AppID:      AppID,
 		Timestamp:  time.Now().Format("20060102150405"),
-		Nonce:      imago.NewRandom().Text(32),
+		Nonce:      random.RandString(32),
 		SignMethod: "SHA256",
 	}
 	sign := rsae.NewSHA().SHA256(AppID + data.Timestamp + data.Nonce + AppKey)
@@ -55,18 +55,20 @@ func (t *Token) Get() (*Response, error) {
 	header := http.Header{}
 	header.Add("Accept", "application/json")
 	header.Add("Content-Type", "application/json;charset=utf-8")
-	body, err = fetch.Cmd(&fetch.Request{
-		Method: "POST",
-		URL:    "https://api-mop.chinaums.com/v1/token/access",
-		Body:   body,
-		Header: header,
+
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL:  "https://api-mop.chinaums.com/v1/token/access",
+		Method:  "POST",
+		Body:    body,
+		Headers: header,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	result := Response{}
-	err = json.Unmarshal(body, &result)
+	err = client.DecodeResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}

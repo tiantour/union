@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/tiantour/fetch"
+	"github.com/duke-git/lancet/v2/netutil"
 )
 
 type (
@@ -38,23 +38,24 @@ func (c *Content) Image(args *Image) ([]byte, error) {
 		return nil, err
 	}
 
-	body, err = fetch.Cmd(&fetch.Request{
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL: fmt.Sprintf("https://api.weixin.qq.com/wxa/img_sec_check?access_token=%s", token),
 		Method: "POST",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/img_sec_check?access_token=%s", token),
 		Body:   body,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	data := Error{}
-	err = json.Unmarshal(body, &data)
+	result := Error{}
+	err = client.DecodeResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}
 
-	if data.ErrCode != 0 {
-		return nil, errors.New(data.ErrMsg)
+	if result.ErrCode != 0 {
+		return nil, errors.New(result.ErrMsg)
 	}
 	return body, err
 }
@@ -71,23 +72,24 @@ func (c *Content) Message(args *Message) ([]byte, error) {
 		return nil, err
 	}
 
-	body, err = fetch.Cmd(&fetch.Request{
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL: fmt.Sprintf("https://api.weixin.qq.com/wxa/msg_sec_check?access_token=%s", token),
 		Method: "POST",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/msg_sec_check?access_token=%s", token),
 		Body:   body,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	data := Error{}
-	err = json.Unmarshal(body, &data)
+	result := Error{}
+	err = client.DecodeResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}
 
-	if data.ErrCode != 0 {
-		return nil, errors.New(data.ErrMsg)
+	if result.ErrCode != 0 {
+		return nil, errors.New(result.ErrMsg)
 	}
 	return body, err
 }

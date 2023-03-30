@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/tiantour/fetch"
+	"github.com/duke-git/lancet/v2/netutil"
 )
 
 // https://developers.weixin.qq.com/doc/offiaccount/Account_Management/Generating_a_Parametric_QR_Code.html
@@ -40,22 +40,23 @@ func (t *Ticket) Get(args *Ticket) (*Ticket, error) {
 		return nil, err
 	}
 
-	data, err := json.Marshal(args)
+	body, err := json.Marshal(args)
 	if err != nil {
 		return nil, err
 	}
 
-	body, err := fetch.Cmd(&fetch.Request{
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL: fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=%s", token),
 		Method: "POST",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=%s", token),
-		Body:   data,
+		Body:   body,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	result := Ticket{}
-	err = json.Unmarshal(body, &result)
+	err = client.DecodeResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}

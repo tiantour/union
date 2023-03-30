@@ -1,11 +1,10 @@
 package wxwork
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 
-	"github.com/tiantour/fetch"
+	"github.com/duke-git/lancet/v2/netutil"
 )
 
 var (
@@ -45,19 +44,17 @@ func (w *Wxwork) User(code string) (*User, error) {
 		return nil, err
 	}
 
-	body, err := fetch.Cmd(&fetch.Request{
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL: fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=%s&code=%s", token, code),
 		Method: "GET",
-		URL: fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=%s&code=%s",
-			token,
-			code,
-		),
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	result := User{}
-	err = json.Unmarshal(body, &result)
+	err = client.DecodeResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}

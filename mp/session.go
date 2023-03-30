@@ -1,11 +1,10 @@
 package mp
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 
-	"github.com/tiantour/fetch"
+	"github.com/duke-git/lancet/v2/netutil"
 )
 
 // Session session
@@ -23,16 +22,17 @@ func NewSession() *Session {
 
 // Get get
 func (s *Session) Get(code string) (*Session, error) {
-	body, err := fetch.Cmd(&fetch.Request{
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL: fmt.Sprintf("https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code", AppID, AppSecret, code),
 		Method: "GET",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code", AppID, AppSecret, code),
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	result := Session{}
-	err = json.Unmarshal(body, &result)
+	err = client.DecodeResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}

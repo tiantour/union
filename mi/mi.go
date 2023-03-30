@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 
-	"github.com/tiantour/imago"
 	"github.com/tiantour/rsae"
 )
 
@@ -113,7 +113,7 @@ func (m *MI) Phone(content string) (*Response, error) {
 		return nil, err
 	}
 
-	publicKey, err := imago.NewFile().Read(PublicPath)
+	publicKey, err := os.ReadFile(PublicPath)
 	if err != nil {
 		return nil, err
 	}

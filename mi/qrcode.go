@@ -1,13 +1,12 @@
 package mi
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 
+	"github.com/duke-git/lancet/v2/datetime"
+	"github.com/duke-git/lancet/v2/netutil"
 	"github.com/google/go-querystring/query"
-	"github.com/tiantour/fetch"
-	"github.com/tiantour/tempo"
 )
 
 // QR qr
@@ -25,7 +24,7 @@ func (q *QR) Generate(content string) (*Response, error) {
 		Format:     "JSON",
 		Charset:    "utf-8",
 		SignType:   "RSA2",
-		TimeStamp:  tempo.NewNow().String(),
+		TimeStamp:  datetime.GetNowDateTime(),
 		Version:    "1.0",
 		BizContent: content,
 	}
@@ -40,18 +39,17 @@ func (q *QR) Generate(content string) (*Response, error) {
 		return nil, err
 	}
 
-	body, err := fetch.Cmd(&fetch.Request{
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL: fmt.Sprintf("https://openapi.alipay.com/gateway.do?%s", sign),
 		Method: "GET",
-		URL: fmt.Sprintf("https://openapi.alipay.com/gateway.do?%s",
-			sign,
-		),
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	result := Result{}
-	err = json.Unmarshal(body, &result)
+	err = client.DecodeResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}

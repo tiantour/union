@@ -1,10 +1,9 @@
 package weibo
 
 import (
-	"encoding/json"
 	"fmt"
 
-	"github.com/tiantour/fetch"
+	"github.com/duke-git/lancet/v2/netutil"
 )
 
 var (
@@ -61,20 +60,17 @@ func NewWeibo() *Weibo {
 
 // User user
 func (w *Weibo) User(accessToken, uID string) (*User, error) {
-	body, err := fetch.Cmd(&fetch.Request{
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL: fmt.Sprintf("https://api.weibo.com/2/users/show.json?source=%s&access_token=%s&uid=%s", AppID, accessToken, uID),
 		Method: "GET",
-		URL: fmt.Sprintf("https://api.weibo.com/2/users/show.json?source=%s&access_token=%s&uid=%s",
-			AppID,
-			accessToken,
-			uID,
-		),
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	result := User{}
-	err = json.Unmarshal(body, &result)
+	err = client.DecodeResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/tiantour/fetch"
+	"github.com/duke-git/lancet/v2/netutil"
 	"github.com/tiantour/rsae"
 )
 
@@ -118,24 +118,25 @@ func (m *MP) Phone(code string) (*Phone, error) {
 		return nil, err
 	}
 
-	body, err = fetch.Cmd(&fetch.Request{
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL: fmt.Sprintf("https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=%s", token),
 		Method: "POST",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=%s", token),
 		Body:   body,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	data := WP{}
-	err = json.Unmarshal(body, &data)
+	result := WP{}
+	err = client.DecodeResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}
 
-	if data.ErrCode != 0 {
-		return nil, errors.New(data.ErrMsg)
+	if result.ErrCode != 0 {
+		return nil, errors.New(result.ErrMsg)
 	}
 
-	return &data.PhoneInfo, nil
+	return &result.PhoneInfo, nil
 }

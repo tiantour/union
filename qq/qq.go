@@ -1,11 +1,10 @@
 package qq
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 
-	"github.com/tiantour/fetch"
+	"github.com/duke-git/lancet/v2/netutil"
 )
 
 var (
@@ -42,16 +41,17 @@ func NewQQ() *QQ {
 
 // User user
 func (q *QQ) User(accessToken, openID string) (*User, error) {
-	body, err := fetch.Cmd(&fetch.Request{
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL: fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%s&oauth_consumer_key=%s&openid=%s", accessToken, AppID, openID),
 		Method: "GET",
-		URL:    fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%s&oauth_consumer_key=%s&openid=%s", accessToken, AppID, openID),
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	result := User{}
-	err = json.Unmarshal(body, &result)
+	err = client.DecodeResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}

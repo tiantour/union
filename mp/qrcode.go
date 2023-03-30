@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/tiantour/fetch"
+	"github.com/duke-git/lancet/v2/netutil"
 )
 
 // QR qr
@@ -15,6 +15,11 @@ type QR struct {
 	Width     int                    `json:"width"`      // 宽度
 	AutoColor bool                   `json:"auto_color"` // 默认颜色
 	LineColor map[string]interface{} `json:"line_color"` // 线条颜色
+}
+
+// NewQR new qr
+func NewQR() *QR {
+	return &QR{}
 }
 
 // Generate qr generate
@@ -29,25 +34,24 @@ func (q *QR) Generate(args *QR) ([]byte, error) {
 		return nil, err
 	}
 
-	body, err = fetch.Cmd(&fetch.Request{
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL: fmt.Sprintf("https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=%s", token),
 		Method: "POST",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=%s", token),
 		Body:   body,
 	})
-
-	// 判断 body 大小
-	if len(body) >= 256 {
-		return body, err
-	}
-
-	data := Error{}
-	err = json.Unmarshal(body, &data)
 	if err != nil {
-		return body, err
+		return nil, err
 	}
 
-	if data.ErrCode != 0 {
-		return nil, errors.New(data.ErrMsg)
+	result := Error{}
+	err = client.DecodeResponse(resp, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	if result.ErrCode != 0 {
+		return nil, errors.New(result.ErrMsg)
 	}
 	return nil, err
 }

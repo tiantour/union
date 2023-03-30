@@ -1,11 +1,10 @@
 package wechat
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 
-	"github.com/tiantour/fetch"
+	"github.com/duke-git/lancet/v2/netutil"
 )
 
 /*
@@ -32,16 +31,17 @@ func NewToken() *Token {
 }
 
 func (t *Token) Access(code string) (*Token, error) {
-	body, err := fetch.Cmd(&fetch.Request{
+	client := netutil.NewHttpClient()
+	resp, err := client.SendRequest(&netutil.HttpRequest{
+		RawURL: fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code", AppID, AppSecret, code),
 		Method: "GET",
-		URL:    fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code", AppID, AppSecret, code),
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	result := Token{}
-	err = json.Unmarshal(body, &result)
+	err = client.DecodeResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}
